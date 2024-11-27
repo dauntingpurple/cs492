@@ -1,14 +1,4 @@
-import tkinter as tk
-from tkinter import messagebox
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, text
-import pandas as pd
-
-# Database configuration
-DATABASE_URL = "sqlite:///school_management_system.db"
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
-
+from src.db_handling.openDatabase import students_df
 
 class StudentManagement:
     def __init__(self):
@@ -25,6 +15,10 @@ class StudentManagement:
             return
 
         try:
+            new_index = (students_df.index[-1]) + 1
+            new_student = {first_name, last_name, dob, new_index}
+            students_df = students_df.append(new_student)
+            """
             # Connect to the database
             session = Session()
 
@@ -35,9 +29,11 @@ class StudentManagement:
             session.execute(insert_query, {"first_name": first_name, "last_name": last_name, "dob": dob})
             session.commit()
             session.close()
+            """
 
             # Show success message
             messagebox.showinfo("Success", "Student added successfully!")
+            
         except Exception as e:
             # Show error message if something goes wrong
             messagebox.showerror("Database Error", f"An error occurred: {e}")
@@ -82,10 +78,11 @@ class StudentManagement:
         canvas.create_window((0, 0), window=inner_frame, anchor="nw")
 
         # Display student data dynamically using labels
-        for index, row in df.iterrows():
-            tk.Label(inner_frame, text=f"ID: {row['student_id']}, "
-                                       f"Name: {row['first_name']} {row['last_name']}, "
-                                       f"DOB: {row['date_of_birth']}").pack(anchor="w", padx=10, pady=2)
+        #for index, row in df.iterrows():
+        #    tk.Label(inner_frame, text=f"ID: {row['student_id']}, "
+        #                               f"Name: {row['first_name']} {row['last_name']}, "
+        #                               f"DOB: {row['date_of_birth']}").pack(anchor="w", padx=10, pady=2)
+        tk.Label(inner_frame, text = students_df).pack(anchor="w", padx=10, pady=2)
 
         # Configure the canvas size dynamically based on inner_frame
         inner_frame.update_idletasks()
