@@ -3,23 +3,6 @@ School Management System
 Project Description
 The school board has proposed the development of a computerized system to improve and optimize the management of various administrative tasks within the school environment. This system will concentrate on four primary areas: student information management, student performance management, teacher information management, and classroom management. The objective is to create a streamlined and user-friendly platform that will decrease manual workloads, reduce errors, and enhance overall administrative efficiency.
 
-## SMS-000	Epic: System Framework
-### S0.1	Set Up Development Environment
-1. ~~Install Programming Language~~
-1. ~~Install Development Tools~~
-1. Create Project Structure
-1. Document Setup Process
-### S0.2	Configure Version Control System
-1. ~~Choose Version Control System~~
-1. ~~Initialize Repository~~
-1. ~~Create Initial Commit~~
-1. Configure Branching Strategy
-### ~~S0.3	Create Initial Database Schema~~
-1. ~~Define Database Requirements~~
-1. ~~Choose Database Management System~~
-1. ~~Design Database Schema~~
-1. ~~Implement Database Schema~~
-1. ~~Document Database Schema~~
 ## SMS-001	Epic: Student Information Management
 ### S1.1	Input and update student information.
 1. Design input forms for student fields.
