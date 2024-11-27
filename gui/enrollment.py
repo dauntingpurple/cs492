@@ -1,9 +1,15 @@
+from src.db_handling.openDatabase import enrollments_df
+
 class EnrollmentManagement:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Enrollment Management")
 
     def enroll_student(self, student_id, course_id):
+        new_index = (enrollments_df.index[-1]) + 1
+        new_enroll = {student_id, course_id, new_index}
+        enrollments_df = enrollments_df.append(new_enroll)
+        """
         session = Session()
         session.execute(
             f"INSERT INTO enrollments (student_id, course_id, enrollment_date) VALUES ({student_id}, {course_id}, CURRENT_DATE)"
@@ -11,12 +17,16 @@ class EnrollmentManagement:
         session.commit()
         session.close()
         self.display_enrollments()
+        """
 
     def display_enrollments(self):
+        print(enrollments_df)
+        """
         session = Session()
         df = pd.read_sql("SELECT * FROM enrollments", con=engine)
         print(df)  # Debugging: Replace with GUI table display
         session.close()
+        """
 
     def run(self):
         tk.Label(self.root, text="Student ID").grid(row=0, column=0)
