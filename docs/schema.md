@@ -31,6 +31,15 @@ This database schema supports the School Management System and includes tables f
   - `course_id` (INTEGER, FOREIGN KEY to courses)
   - `enrollment_date` (DATE)
 
+### Grades
+- **Table Name:** grades
+- **Purpose:** Stores student grades per assignment.
+- **Columns:**
+- `grade_id` (INTEGER, PRIMARY KEY)
+- `student_id` (INTEGER, FOREIGN KEY to students)
+- `assignment_id` (INTEGER, FOREIGN KEY to assignments)
+- `grade` (FLOAT)
+
 ## Relationships
 - One student can enroll in multiple courses (one-to-many).
 - A course can have multiple students enrolled (one-to-many).
