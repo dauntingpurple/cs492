@@ -5,7 +5,7 @@ class StudentManagement:
         self.root = tk.Tk()
         self.root.title("Student Management")
 
-    def add_student(self, first_name, last_name, dob):
+    def add_student(self, first_name, last_name, dob, address, email):
         """
         Adds a new student to the database.
         """
@@ -16,7 +16,7 @@ class StudentManagement:
 
         try:
             new_index = (students_df.index[-1]) + 1
-            new_student = {first_name, last_name, dob, new_index}
+            new_student = {first_name, last_name, dob, address, email, new_index}
             students_df = students_df.append(new_student)
             """
             # Connect to the database
