@@ -7,7 +7,9 @@ from sqlalchemy import create_engine
 students_data = {
     'first_name': ['John', 'Jane', 'Jim'],
     'last_name': ['Doe', 'Smith', 'Brown'],
-    'date_of_birth': pd.to_datetime(['2000-01-01', '2001-02-02', '2002-03-03'])
+    'date_of_birth': pd.to_datetime(['2000-01-01', '2001-02-02', '2002-03-03']),
+    'address' : ['123 Main St, Springfield, OH', '95 Donahue Blvd, Appleton, WI', '802 Salebarn Rd, Fort Pierre, SD'],
+    'email' : ['john.doe@example.com', 'jane.smith@testmail.org', 'brownj@dummydata.net']
 }
 students_df = pd.DataFrame(students_data)
 students_df["student_id"] = students_df.index
@@ -23,7 +25,9 @@ courses_df = pd.DataFrame(courses_data)
 # Define the Enrollments table
 enrollments_data = {
     'student_id': [1, 2, 3],
-    'course_id': [101, 102, 103]
+    'course_id': [101, 102, 103],
+    'semester': ['Fall', 'Fall', 'Fall'],
+    'year': [2023, 2023, 2023]
 }
 enrollments_df = pd.DataFrame(enrollments_data)
 enrollments_df["enrollment_id"] = enrollments_df.index
