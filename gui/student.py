@@ -1,126 +1,84 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
 from src.db_handling.openDatabase import students_df
+import pandas as pd
 
 class StudentManagement:
-    def __init__(self):
-        self.root = tk.Tk()
+    def __init__(self, go_back_callback):
+        self.go_back_callback = go_back_callback
+        self.root = tk.Toplevel()  # Use Toplevel for the student management window
         self.root.title("Student Management")
 
     def add_student(self, first_name, last_name, dob):
-        """
-        Adds a new student to the database.
-        """
-        # Validate input fields
-        if not first_name or not last_name or not dob:
-            messagebox.showerror("Input Error", "All fields are required!")
-            return
-
+        global students_df
         try:
-            new_index = (students_df.index[-1]) + 1
-            new_student = {first_name, last_name, dob, new_index}
-            students_df = students_df.append(new_student)
-            """
-            # Connect to the database
-            session = Session()
-
-            # Use text() to explicitly declare the SQL query
-            insert_query = text(
-                "INSERT INTO students (first_name, last_name, date_of_birth) VALUES (:first_name, :last_name, :dob)"
-            )
-            session.execute(insert_query, {"first_name": first_name, "last_name": last_name, "dob": dob})
-            session.commit()
-            session.close()
-            """
-
-            # Show success message
+            new_id = students_df['student_id'].max() + 1 if not students_df.empty else 0
+            new_student = {
+                'student_id': new_id,
+                'first_name': first_name,
+                'last_name': last_name,
+                'date_of_birth': dob
+            }
+            students_df = pd.concat([students_df, pd.DataFrame([new_student])], ignore_index=True)
             messagebox.showinfo("Success", "Student added successfully!")
-            
         except Exception as e:
-            # Show error message if something goes wrong
-            messagebox.showerror("Database Error", f"An error occurred: {e}")
+            messagebox.showerror("Error", f"Failed to add student: {e}")
 
     def display_students(self):
-        """
-        Displays all student records in a scrollable GUI window.
-        """
-        # Create a new window for displaying student information
         display_window = tk.Toplevel(self.root)
-        display_window.title("Student List")
-        display_window.geometry("500x400")
+        display_window.title("Students List")
+        display_window.geometry("600x400")
 
-        # Fetch student data from the database
-        session = Session()
-        df = pd.read_sql("SELECT * FROM students", con=engine)
-        session.close()
+        tree = ttk.Treeview(display_window, columns=("Student ID", "First Name", "Last Name", "Date of Birth"), show="headings")
+        tree.heading("Student ID", text="Student ID")
+        tree.heading("First Name", text="First Name")
+        tree.heading("Last Name", text="Last Name")
+        tree.heading("Date of Birth", text="Date of Birth")
+        tree.column("Student ID", width=100, anchor="center")
+        tree.column("First Name", width=150, anchor="center")
+        tree.column("Last Name", width=150, anchor="center")
+        tree.column("Date of Birth", width=150, anchor="center")
 
-        # Debugging: Print the dataframe to verify the data
-        print(df)
+        for _, row in students_df.iterrows():
+            tree.insert("", "end", values=(row["student_id"], row["first_name"], row["last_name"], row["date_of_birth"]))
 
-        # Add a title label
-        tk.Label(display_window, text="Student List", font=("Helvetica", 14, "bold")).pack(pady=10)
+        scrollbar = ttk.Scrollbar(display_window, orient="vertical", command=tree.yview)
+        tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
 
-        # Create a frame to hold the student data and make it scrollable
-        frame = tk.Frame(display_window)
-        frame.pack(fill=tk.BOTH, expand=True)
+        tree.pack(expand=True, fill="both")
+        tk.Button(display_window, text="Close", command=display_window.destroy).pack(pady=10)
 
-        # Add a scrollbar
-        scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-        # Create a canvas for scrolling
-        canvas = tk.Canvas(frame, yscrollcommand=scrollbar.set)
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-        # Configure scrollbar to interact with the canvas
-        scrollbar.config(command=canvas.yview)
-
-        # Add a frame inside the canvas to hold the labels
-        inner_frame = tk.Frame(canvas)
-        canvas.create_window((0, 0), window=inner_frame, anchor="nw")
-
-        # Display student data dynamically using labels
-        #for index, row in df.iterrows():
-        #    tk.Label(inner_frame, text=f"ID: {row['student_id']}, "
-        #                               f"Name: {row['first_name']} {row['last_name']}, "
-        #                               f"DOB: {row['date_of_birth']}").pack(anchor="w", padx=10, pady=2)
-        tk.Label(inner_frame, text = students_df).pack(anchor="w", padx=10, pady=2)
-
-        # Configure the canvas size dynamically based on inner_frame
-        inner_frame.update_idletasks()
-        canvas.config(scrollregion=canvas.bbox("all"))
+    def go_back(self):
+        self.root.destroy()
+        self.go_back_callback()  # Call the go-back callback to show the dashboard
 
     def run(self):
-        """
-        Starts the GUI application.
-        """
-        # Add input fields for student data
-        tk.Label(self.root, text="First Name").grid(row=0, column=0)
+        tk.Label(self.root, text="Student Management", font=("Arial", 16)).pack(pady=20)
+
+        # Form to add a student
+        tk.Label(self.root, text="First Name").pack(pady=5)
         first_name_entry = tk.Entry(self.root)
-        first_name_entry.grid(row=0, column=1)
+        first_name_entry.pack(pady=5)
 
-        tk.Label(self.root, text="Last Name").grid(row=1, column=0)
+        tk.Label(self.root, text="Last Name").pack(pady=5)
         last_name_entry = tk.Entry(self.root)
-        last_name_entry.grid(row=1, column=1)
+        last_name_entry.pack(pady=5)
 
-        tk.Label(self.root, text="Date of Birth").grid(row=2, column=0)
+        tk.Label(self.root, text="Date of Birth (YYYY-MM-DD)").pack(pady=5)
         dob_entry = tk.Entry(self.root)
-        dob_entry.grid(row=2, column=1)
+        dob_entry.pack(pady=5)
 
-        # Add buttons for actions
-        tk.Button(self.root, text="Add Student", command=lambda: self.add_student(
-            first_name_entry.get(),
-            last_name_entry.get(),
-            dob_entry.get()
-        )).grid(row=3, column=1, pady=10)
+        tk.Button(
+            self.root,
+            text="Add Student",
+            command=lambda: self.add_student(first_name_entry.get(), last_name_entry.get(), dob_entry.get())
+        ).pack(pady=5)
 
-        tk.Button(self.root, text="Display Students", command=self.display_students).grid(row=4, column=1, pady=10)
-        tk.Button(self.root, text="Exit", command=self.root.destroy).grid(row=5, column=1, pady=10)
+        # Button to show all students
+        tk.Button(self.root, text="Show Students", command=self.display_students).pack(pady=5)
 
-        # Start the main loop
+        # Back button
+        tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
+
         self.root.mainloop()
-
-
-# Entry point for the application
-if __name__ == "__main__":
-    app = StudentManagement()
-    app.run()
-

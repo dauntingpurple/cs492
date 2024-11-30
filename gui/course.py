@@ -1,50 +1,58 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
 from src.db_handling.openDatabase import courses_df
+import pandas as pd
 
 class CourseManagement:
-	def __init__(self):
-		self.root = tk.Tk()
-		self.root.title("Course Management")
+    def __init__(self, go_back_callback):
+        self.go_back_callback = go_back_callback
+        self.root = tk.Toplevel()  # Use Toplevel for the course management window
+        self.root.title("Course Management")
 
-	def add_course(self, course_name, credits):
-		new_index = (courses_df.index[-1]) + 1
-		new_course = {course_name, credits, new_index}
-		courses_df = courses_df.append(new_course)
+    def add_course(self, course_name, credits):
+        global courses_df
+        try:
+            new_id = courses_df['course_id'].max() + 1 if not courses_df.empty else 101
+            new_course = {
+                'course_id': new_id,
+                'course_name': course_name,
+                'credits': int(credits)
+            }
+            courses_df = pd.concat([courses_df, pd.DataFrame([new_course])], ignore_index=True)
+            messagebox.showinfo("Success", "Course added successfully!")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to add course: {e}")
 
-		""" I think it's easier if while the program is running we use the dataframe
-		and then when it's closed it saves it to the database, that what it limits how many
-		calls are being made to it.
+    def display_courses(self):
+        display_window = tk.Toplevel(self.root)
+        display_window.title("Courses List")
+        display_window.geometry("600x400")
 
-		session = Session()
-		session.execute(
-			f"INSERT INTO courses (course_name, credits) VALUES ('{course_name}', {credits})"
-		)
-		session.commit()
-		session.close()
-		self.display_courses()
-		"""
-	def display_courses(self):
-		print(courses_df)
-		"""
-		session = Session()
-		df = pd.read_sql("SELECT * FROM courses", con=engine)
-		print(df)  # Debugging: Replace with GUI table display
-		session.close()
-		"""
+        tree = ttk.Treeview(display_window, columns=("Course ID", "Course Name", "Credits"), show="headings")
+        tree.heading("Course ID", text="Course ID")
+        tree.heading("Course Name", text="Course Name")
+        tree.heading("Credits", text="Credits")
+        tree.column("Course ID", width=100, anchor="center")
+        tree.column("Course Name", width=300, anchor="center")
+        tree.column("Credits", width=100, anchor="center")
 
-	def run(self):
-		tk.Label(self.root, text="Course Name").grid(row=0, column=0)
-		course_name_entry = tk.Entry(self.root)
-		course_name_entry.grid(row=0, column=1)
+        for _, row in courses_df.iterrows():
+            tree.insert("", "end", values=(row["course_id"], row["course_name"], row["credits"]))
 
-		tk.Label(self.root, text="Credits").grid(row=1, column=0)
-		credits_entry = tk.Entry(self.root)
-		credits_entry.grid(row=1, column=1)
+        scrollbar = ttk.Scrollbar(display_window, orient="vertical", command=tree.yview)
+        tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
 
-		tk.Button(self.root, text="Add Course", command=lambda: self.add_course(
-			course_name_entry.get(),
-			credits_entry.get()
-		)).grid(row=2, column=1)
+        tree.pack(expand=True, fill="both")
+        tk.Button(display_window, text="Close", command=display_window.destroy).pack(pady=10)
 
-		tk.Button(self.root, text="Display Courses", command=self.display_courses).grid(row=3, column=1)
-		tk.Button(self.root, text="Exit", command=self.root.destroy).grid(row=4, column=1)
-		self.root.mainloop()
+    def go_back(self):
+        self.root.destroy()
+        self.go_back_callback()  # Call the go-back callback to show the dashboard
+
+    def run(self):
+        tk.Label(self.root, text="Course Management", font=("Arial", 16)).pack(pady=20)
+        tk.Button(self.root, text="Add Course", command=lambda: self.add_course("New Course", 3)).pack(pady=5)
+        tk.Button(self.root, text="Show Courses", command=self.display_courses).pack(pady=5)
+        tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
+        self.root.mainloop()
