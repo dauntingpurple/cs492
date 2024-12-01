@@ -37,4 +37,3 @@ class Login:
 
         tk.Button(self.root, text="Login", command=lambda: self.authenticate(username_entry.get(), password_entry.get())).grid(row=2, column=1, pady=20)
         self.root.mainloop()
-
