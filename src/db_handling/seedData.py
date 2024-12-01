@@ -57,8 +57,6 @@ print("\nCourses DataFrame:")
 print(courses_df)
 print("\nEnrollments DataFrame:")
 print(enrollments_df)
-print("\nAssignments DataFrame:")
-
 print("\nGrade DataFrame:")
 print(grades_df)
 

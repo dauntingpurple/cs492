@@ -32,7 +32,7 @@ This database schema supports the School Management System and includes tables f
   - `course_id` (INTEGER, FOREIGN KEY to courses)
   - `semester` (VARCHAR)
   - `year` (INTEGER)
-    - `enrollment_id` (INTEGER, PRIMARY KEY)
+  - `enrollment_id` (INTEGER, PRIMARY KEY)
 
 ### Grades
 - **Table Name:** grades
@@ -45,12 +45,3 @@ This database schema supports the School Management System and includes tables f
 ## Relationships
 - One student can enroll in multiple courses (one-to-many).
 - A course can have multiple students enrolled (one-to-many).
-
-## Sample Queries
-```sql
--- Retrieve all students
-SELECT * FROM students;
-
--- Enroll a student in a course
-INSERT INTO enrollments (student_id, course_id,)
-VALUES (1, 101);
