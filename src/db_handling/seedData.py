@@ -41,18 +41,10 @@ enrollments_data = {
 enrollments_df = pd.DataFrame(enrollments_data)
 enrollments_df["enrollment_id"] = enrollments_df.index
 
-# Create Assignments DataFrame
-assignments_data = {
-    'course_id': np.random.choice(courses_df['course_id'], size=30),
-    'title': [f'Assignment_{i}' for i in range(1, 31)]
-}
-assignments_df = pd.DataFrame(assignments_data)
-assignments_df["assignment_id"] = assignments_df.index
-
 # Create Grades DataFrame
 grades_data = {
     'student_id': np.random.choice(students_df['student_id'], size=200),
-    'assignment_id': np.random.choice(assignments_df['assignment_id'], size=200),
+    'enrollments_id': np.random.choice(enrollments_df['enrollments_id'], size=200),
     'grade': np.random.uniform(0, 100, size=200)  # Random grades between 0 and 100
 }
 grades_df = pd.DataFrame(grades_data)
@@ -66,7 +58,7 @@ print(courses_df)
 print("\nEnrollments DataFrame:")
 print(enrollments_df)
 print("\nAssignments DataFrame:")
-print(assignments_df)
+
 print("\nGrade DataFrame:")
 print(grades_df)
 
@@ -78,5 +70,4 @@ engine = create_engine('sqlite:///school_management_system.db')
 students_df.to_sql('students', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
-assignments_df.to_sql('assignments', con=engine, if_exists='replace', index=False)
 grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)

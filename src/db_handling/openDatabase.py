@@ -1,16 +1,19 @@
 import os
+import sys
 from sqlalchemy import create_engine
 import pandas as pd
 
-print(f"Using database at: {DB_PATH}")
-
-# Determine if the app is running in a PyInstaller bundle
-if hasattr(sys, '_MEIPASS'):
-    BASE_DIR = sys._MEIPASS  # PyInstaller extracts files to this directory
+# Detect if running in a PyInstaller bundle
+if hasattr(sys, "_MEIPASS"):
+    ROOT_DIR = sys._MEIPASS  # PyInstaller extracts files to this directory
 else:
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Normal script directory
+    ROOT_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))  # Script or .exe location
 
-DB_PATH = os.path.join(BASE_DIR, 'school_management_system.db')
+# Define the database path
+DB_PATH = os.path.join(ROOT_DIR, 'school_management_system.db')
+
+# Print the database path for debugging purposes
+print(f"Using database at: {DB_PATH}")
 
 # Check if the database file exists
 if not os.path.exists(DB_PATH):
@@ -20,30 +23,33 @@ if not os.path.exists(DB_PATH):
 engine = create_engine(f'sqlite:///{DB_PATH}')
 
 # Load data from the database tables
-students_df = pd.read_sql('SELECT * FROM students', con=engine)
-courses_df = pd.read_sql('SELECT * FROM courses', con=engine)
-enrollments_df = pd.read_sql('SELECT * FROM enrollments', con=engine)
-assignments_df = pd.read_sql('SELECT * FROM assignments', con=engine)
-grades_df = pd.read_sql('SELECT * FROM grades', con=engine)
+try:
+    # Load the tables into pandas DataFrames
+    students_df = pd.read_sql('SELECT * FROM students', con=engine)
+    courses_df = pd.read_sql('SELECT * FROM courses', con=engine)
+    enrollments_df = pd.read_sql('SELECT * FROM enrollments', con=engine)
+    assignments_df = pd.read_sql('SELECT * FROM assignments', con=engine)
+    grades_df = pd.read_sql('SELECT * FROM grades', con=engine)
 
+    # Debugging: Display the first few rows of each DataFrame
+    print("Students DataFrame:")
+    print(students_df.head())
 
+    print("\nCourses DataFrame:")
+    print(courses_df.head())
 
-# Display the loaded DataFrames
-# The following can be removed once we are further and don't need to troubleshoot
-print("Students DataFrame:")
-print(students_df.head())
+    print("\nEnrollments DataFrame:")
+    print(enrollments_df.head())
 
-print("\nCourses DataFrame:")
-print(courses_df.head())
+    print("\nAssignments DataFrame:")
+    print(assignments_df.head())
 
-print("\nEnrollments DataFrame:")
-print(enrollments_df.head())
+    print("\nGrades DataFrame:")
+    print(grades_df.head())
+except Exception as e:
+    # Print an error message if there is an issue loading the database
+    print(f"Error loading data from the database: {e}")
+    raise
 
-print("\nAssignments DataFrame:")
-print(assignments_df.head())
-
-print("\nGrades DataFrame:")
-print(grades_df.head())
-
-# DataFrames are now in memory and will be used during runtime
-# Changes to these DataFrames should be explicitly saved using saveChangeToDatabase.py
+# The DataFrames are now available for use during runtime
+# Any changes to these DataFrames should be saved explicitly using saveChangeToDatabase.py
