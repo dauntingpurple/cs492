@@ -9,36 +9,38 @@ This database schema supports the School Management System and includes tables f
 - **Table Name:** students
 - **Purpose:** Stores student information.
 - **Columns:**
-  - `student_id` (INTEGER, PRIMARY KEY)
   - `first_name` (VARCHAR)
   - `last_name` (VARCHAR)
   - `date_of_birth` (DATE)
+  - `address` (VARCHAR)
+  - `email` (VARCHAR)
+  - `student_id` (INTEGER, PRIMARY KEY)
 
 ### Courses
 - **Table Name:** courses
 - **Purpose:** Stores course information.
 - **Columns:**
-  - `course_id` (INTEGER, PRIMARY KEY)
   - `course_name` (VARCHAR)
   - `credits` (INTEGER)
+  - `course_id` (INTEGER, PRIMARY KEY)
 
 ### Enrollments
 - **Table Name:** enrollments
 - **Purpose:** Tracks student enrollments in courses.
 - **Columns:**
-  - `enrollment_id` (INTEGER, PRIMARY KEY)
   - `student_id` (INTEGER, FOREIGN KEY to students)
   - `course_id` (INTEGER, FOREIGN KEY to courses)
-  - `enrollment_date` (DATE)
+  - `semester` (VARCHAR)
+  - `year` (INTEGER)
+    - `enrollment_id` (INTEGER, PRIMARY KEY)
 
 ### Grades
 - **Table Name:** grades
 - **Purpose:** Stores student grades per assignment.
 - **Columns:**
-- `grade_id` (INTEGER, PRIMARY KEY)
 - `student_id` (INTEGER, FOREIGN KEY to students)
-- `assignment_id` (INTEGER, FOREIGN KEY to assignments)
 - `grade` (FLOAT)
+- `grade_id` (INTEGER, PRIMARY KEY)
 
 ## Relationships
 - One student can enroll in multiple courses (one-to-many).
@@ -50,5 +52,5 @@ This database schema supports the School Management System and includes tables f
 SELECT * FROM students;
 
 -- Enroll a student in a course
-INSERT INTO enrollments (student_id, course_id, enrollment_date)
-VALUES (1, 101, '2023-08-01');
+INSERT INTO enrollments (student_id, course_id,)
+VALUES (1, 101);

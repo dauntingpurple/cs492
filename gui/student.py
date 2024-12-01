@@ -20,6 +20,32 @@ class StudentManagement:
                 'date_of_birth': dob
             }
             students_df = pd.concat([students_df, pd.DataFrame([new_student])], ignore_index=True)
+            
+    def add_student(self, first_name, last_name, dob, address, email):
+        """
+        Adds a new student to the database.
+        """
+        # Validate input fields
+        if not first_name or not last_name or not dob:
+            messagebox.showerror("Input Error", "All fields are required!")
+            return
+
+        try:
+            new_index = (students_df.index[-1]) + 1
+            new_student = {first_name, last_name, dob, address, email, new_index}
+            students_df = students_df.append(new_student)
+            """
+            # Connect to the database
+            session = Session()
+
+            # Use text() to explicitly declare the SQL query
+            insert_query = text(
+                "INSERT INTO students (first_name, last_name, date_of_birth) VALUES (:first_name, :last_name, :dob)"
+            )
+            session.execute(insert_query, {"first_name": first_name, "last_name": last_name, "dob": dob})
+            session.commit()
+            session.close()
+            """
             messagebox.showinfo("Success", "Student added successfully!")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to add student: {e}")

@@ -1,6 +1,8 @@
 from src.db_handling.exampleCode import students_df, courses_df,enrollments_df, assignments_df, grades_df 
 from sqlalchemy import create_engine
 
+# Any time changes to the data is made, this should be ran to update the database.
+
 # Create an engine to connect to the SQLite database
 engine = create_engine('sqlite:///school_management_system.db')
 
