@@ -16,7 +16,9 @@ num_students = 10
 students_data = {
     'first_name': [fake.first_name() for _ in range(num_students)],
     'last_name': [fake.last_name() for _ in range(num_students)],
-    'date_of_birth': [fake.date_of_birth(minimum_age=18, maximum_age=25) for _ in range(num_students)]
+    'date_of_birth': [fake.date_of_birth(minimum_age=18, maximum_age=25) for _ in range(num_students)],
+    'address' : [fake.address().replace("\n", ", ") for _ in range(num_students)],
+    'email' : [fake.email() for _ in range(num_students)]
 }
 students_df = pd.DataFrame(students_data)
 students_df["student_id"] = students_df.index

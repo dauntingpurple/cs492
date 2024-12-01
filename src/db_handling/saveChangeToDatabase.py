@@ -8,6 +8,8 @@ db_path = 'school_management_system.db'
 # Print the database path for debugging
 print(f"Saving changes to the database at: {os.path.abspath(db_path)}")
 
+# Any time changes to the data is made, this should be ran to update the database.
+
 # Create an engine to connect to the SQLite database
 engine = create_engine(f'sqlite:///{db_path}')
 
