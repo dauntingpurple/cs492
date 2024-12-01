@@ -1,40 +1,52 @@
-from src.db_handling.exampleCode import students_df, courses_df, enrollments_df, assignments_df, grades_df
 from sqlalchemy import create_engine
-import os
+import pandas as pd
+# Any time changes to the data is made, one of these should be ran to update the database.
 
-# Specify the database path
-db_path = 'school_management_system.db'
+def refresh_df_from_db():
+    """
+    Open all DataFrames from an SQLite database.
+    """
+    engine = create_engine('sqlite:///school_management_system.db')
+    #table_names = ['students', 'courses', 'enrollments', 'assignments', 'grades']
+    
+    # Load data from the database tables
+    students_df = pd.read_sql_table('students', con=engine)
+    courses_df = pd.read_sql_table('courses', con=engine)
+    enrollments_df = pd.read_sql_table('enrollments', con=engine)
+    grades_df = pd.read_sql_table('grades', con=engine)
 
-# Print the database path for debugging
-print(f"Saving changes to the database at: {os.path.abspath(db_path)}")
+    return students_df, courses_df, enrollments_df, grades_df
 
-# Any time changes to the data is made, this should be ran to update the database.
+def read_from_df(table_name):
+    """
+    Read a single table from an SQLite database to a DataFrame.
+    """
+    engine = create_engine('sqlite:///school_management_system.db')
+    dataframe = pd.read_sql_table(table_name, con=engine)
+    return dataframe
 
-# Create an engine to connect to the SQLite database
-engine = create_engine(f'sqlite:///{db_path}')
+def save_df_to_db(table_name, dataframe):
+    """
+    Save a single DataFrame to an SQLite database.
+    """
+    engine = create_engine('sqlite:///school_management_system.db')
+    dataframe.to_sql(table_name, con=engine, if_exists='replace', index=False)
 
+
+"""
+# Example usage to save all dataframes to database: #
+dataframes = {
+    'students': students_df,
+    'courses': courses_df,
+    'enrollments': enrollments_df,
+    'grades': grades_df
+}
+"""
 def save_all_changes():
     """
-    Save all in-memory DataFrames to their respective tables in the database.
+    Save multiple DataFrames to an SQLite database.
     """
-    try:
-        print("Saving Students DataFrame to the database...")
-        students_df.to_sql('students', con=engine, if_exists='replace', index=False)
-        print("Students table saved successfully.")
-
-        courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
-        print("Courses table saved successfully.")
-
-        enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
-        print("Enrollments table saved successfully.")
-
-        assignments_df.to_sql('assignments', con=engine, if_exists='replace', index=False)
-        print("Assignments table saved successfully.")
-
-        grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
-        print("Grades table saved successfully.")
-
-        print("All changes have been saved to the database.")
-    except Exception as e:
-        print(f"Error saving changes: {e}")
-        raise
+    engine = create_engine('sqlite:///school_management_system.db')
+    students_df.to_sql('students', con=engine, if_exists='replace', index=False)
+    for table_name, df in dataframes.items():
+        df.to_sql(table_name, con=engine, if_exists='replace', index=False)

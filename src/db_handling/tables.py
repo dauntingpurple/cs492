@@ -32,14 +32,6 @@ enrollments_data = {
 enrollments_df = pd.DataFrame(enrollments_data)
 enrollments_df["enrollment_id"] = enrollments_df.index
 
-# Create Assignments DataFrame
-assignments_data = {
-    'course_id': [101, 102, 103],
-    'title': ['Assignment_1', 'Assignment_2', 'Assignment_3'],
-}
-assignments_df = pd.DataFrame(assignments_data)
-assignments_df["assignment_id"] = assignments_df.index
-
 # Create Grades DataFrame
 grades_data = {
     'student_id': [1, 2, 3],
@@ -56,8 +48,6 @@ print("\nCourses DataFrame:")
 print(courses_df.head())
 print("\nEnrollments DataFrame:")
 print(enrollments_df.head())
-print("\nAssignments DataFrame:")
-print(assignments_df.head())
 print("\nGrades DataFrame:")
 print(grades_df.head())
 
@@ -68,5 +58,4 @@ engine = create_engine('sqlite:///school_management_system.db')
 students_df.to_sql('students', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
-assignments_df.to_sql('assignments', con=engine, if_exists='replace', index=False)
 grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
