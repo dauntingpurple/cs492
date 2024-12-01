@@ -7,6 +7,7 @@ def on_exit():
     try:
         print("Attempting to save changes to the database...")
         save_all_changes()
+        # Thinking we actually save periodically so that if there's multiple users data gets updated pretty regularly.
         print("Changes saved successfully.")
     except Exception as e:
         print(f"Error saving changes on exit: {e}")
