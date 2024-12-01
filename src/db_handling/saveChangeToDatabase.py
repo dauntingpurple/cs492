@@ -4,12 +4,20 @@ from sqlalchemy import create_engine
 # Any time changes to the data is made, this should be ran to update the database.
 
 # Create an engine to connect to the SQLite database
-engine = create_engine('sqlite:///student_management_system.db')
+engine = create_engine('sqlite:///school_management_system.db')
 
 
 # Save the changed DataFrames to the database
-students_df.to_sql('students', con=engine, if_exists='replace', index=False)
-courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
-enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
-assignments_df.to_sql('assignments', con=engine, if_exists='replace', index=False)
-grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
+def save_all_changes():
+    """
+    Save all in-memory DataFrames to their respective tables in the database.
+    """
+    try:
+        students_df.to_sql('students', con=engine, if_exists='replace', index=False)
+        courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
+        enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
+        assignments_df.to_sql('assignments', con=engine, if_exists='replace', index=False)
+        grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
+        print("All changes have been saved to the database.")
+    except Exception as e:
+        print(f"Error saving changes: {e}")

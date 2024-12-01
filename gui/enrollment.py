@@ -1,47 +1,77 @@
-from src.db_handling.openDatabase import enrollments_df
+import tkinter as tk
+from tkinter import ttk, messagebox
+from src.db_handling.openDatabase import enrollments_df, students_df, courses_df
+import pandas as pd
 
 class EnrollmentManagement:
-    def __init__(self):
-        self.root = tk.Tk()
+    def __init__(self, go_back_callback):
+        self.go_back_callback = go_back_callback
+        self.root = tk.Toplevel()  # Use Toplevel for the enrollment management window
         self.root.title("Enrollment Management")
 
     def enroll_student(self, student_id, course_id):
-        new_index = (enrollments_df.index[-1]) + 1
-        new_enroll = {student_id, course_id, new_index}
-        enrollments_df = enrollments_df.append(new_enroll)
-        """
-        session = Session()
-        session.execute(
-            f"INSERT INTO enrollments (student_id, course_id, enrollment_date) VALUES ({student_id}, {course_id}, CURRENT_DATE)"
-        )
-        session.commit()
-        session.close()
-        self.display_enrollments()
-        """
+        global enrollments_df
+        try:
+            new_id = enrollments_df['enrollment_id'].max() + 1 if not enrollments_df.empty else 0
+            new_enrollment = {
+                'enrollment_id': new_id,
+                'student_id': int(student_id),
+                'course_id': int(course_id)
+            }
+            enrollments_df = pd.concat([enrollments_df, pd.DataFrame([new_enrollment])], ignore_index=True)
+            messagebox.showinfo("Success", "Student enrolled successfully!")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to enroll student: {e}")
 
     def display_enrollments(self):
-        print(enrollments_df)
-        """
-        session = Session()
-        df = pd.read_sql("SELECT * FROM enrollments", con=engine)
-        print(df)  # Debugging: Replace with GUI table display
-        session.close()
-        """
+        display_window = tk.Toplevel(self.root)
+        display_window.title("Enrollments List")
+        display_window.geometry("600x400")
+
+        tree = ttk.Treeview(display_window, columns=("Enrollment ID", "Student ID", "Course ID"), show="headings")
+        tree.heading("Enrollment ID", text="Enrollment ID")
+        tree.heading("Student ID", text="Student ID")
+        tree.heading("Course ID", text="Course ID")
+        tree.column("Enrollment ID", width=100, anchor="center")
+        tree.column("Student ID", width=100, anchor="center")
+        tree.column("Course ID", width=100, anchor="center")
+
+        for _, row in enrollments_df.iterrows():
+            tree.insert("", "end", values=(row["enrollment_id"], row["student_id"], row["course_id"]))
+
+        scrollbar = ttk.Scrollbar(display_window, orient="vertical", command=tree.yview)
+        tree.configure(yscroll=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+        tree.pack(expand=True, fill="both")
+        tk.Button(display_window, text="Close", command=display_window.destroy).pack(pady=10)
+
+    def go_back(self):
+        self.root.destroy()
+        self.go_back_callback()  # Call the go-back callback to show the dashboard
 
     def run(self):
-        tk.Label(self.root, text="Student ID").grid(row=0, column=0)
+        tk.Label(self.root, text="Enrollment Management", font=("Arial", 16)).pack(pady=20)
+
+        # Form to enroll a student
+        tk.Label(self.root, text="Student ID").pack(pady=5)
         student_id_entry = tk.Entry(self.root)
-        student_id_entry.grid(row=0, column=1)
+        student_id_entry.pack(pady=5)
 
-        tk.Label(self.root, text="Course ID").grid(row=1, column=0)
+        tk.Label(self.root, text="Course ID").pack(pady=5)
         course_id_entry = tk.Entry(self.root)
-        course_id_entry.grid(row=1, column=1)
+        course_id_entry.pack(pady=5)
 
-        tk.Button(self.root, text="Enroll", command=lambda: self.enroll_student(
-            student_id_entry.get(),
-            course_id_entry.get()
-        )).grid(row=2, column=1)
+        tk.Button(
+            self.root,
+            text="Enroll Student",
+            command=lambda: self.enroll_student(student_id_entry.get(), course_id_entry.get())
+        ).pack(pady=5)
 
-        tk.Button(self.root, text="Display Enrollments", command=self.display_enrollments).grid(row=3, column=1)
-        tk.Button(self.root, text="Exit", command=self.root.destroy).grid(row=4, column=1)
+        # Button to show all enrollments
+        tk.Button(self.root, text="Show Enrollments", command=self.display_enrollments).pack(pady=5)
+
+        # Back button
+        tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
+
         self.root.mainloop()
