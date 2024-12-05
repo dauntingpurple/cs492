@@ -23,6 +23,17 @@ students_data = {
 students_df = pd.DataFrame(students_data)
 students_df["student_id"] = students_df.index
 
+# Create Teachers DataFrame
+num_teachers = 3
+teachers_df = {
+    'first_name': [fake.first_name() for _ in range(num_teachers)],
+    'last_name': [fake.last_name() for _ in range(num_teachers)],
+    'qualifications': [fake.random_element(elements=('M.Ed', 'Ph.D.', 'B.Ed.', 'M.A.', 'M.Sc.')) for _ in range(num_teachers)],
+    'course_name': [fake.word().capitalize() + " 101" for _ in range(num_teachers)]
+}
+teachers_df = pd.DataFrame(teachers_df)
+teachers_df["teacher_id"] = teachers_df.index
+
 # Generate seed data for Courses
 num_courses = 5
 courses_data = {
