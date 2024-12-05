@@ -14,6 +14,16 @@ students_data = {
 students_df = pd.DataFrame(students_data)
 students_df["student_id"] = students_df.index
 
+# Create Teachers DataFrame
+teachers_df = {
+    'first_name': ['Alice', 'Bob', 'Carol'],
+    'last_name': ['Smith', 'Johnson', 'Williams'],
+    'qualifications': ['M.Ed', 'Ph.D.', 'B.Ed.'],
+    'course_name': ['Mathematics', 'Science', 'English']
+}
+teachers_df = pd.DataFrame(teachers_df)
+teachers_df["teacher_id"] = teachers_df.index
+
 # Define the Courses table
 courses_data = {
     'course_id': [101, 102, 103],
@@ -56,6 +66,7 @@ engine = create_engine('sqlite:///school_management_system.db')
 
 # Save DataFrames to the database
 students_df.to_sql('students', con=engine, if_exists='replace', index=False)
+teachers_df.to_sql('teachers', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
 grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
