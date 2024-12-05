@@ -51,6 +51,9 @@ grades_data = {
 grades_df = pd.DataFrame(grades_data)
 grades_df["grade_id"] = grades_df.index
 
+audit_log_columns = ['change_id', 'table_name', 'record_id', 'change_type', 'change_timestamp', 'changed_by', 'old_value', 'new_value']
+audit_log_df = pd.DataFrame(columns=audit_log_columns)
+
 # Display the DataFrames
 print("Students DataFrame:")
 print(students_df.head())
@@ -70,3 +73,4 @@ teachers_df.to_sql('teachers', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
 grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
+audit_log_df.to_sql('audit_log', con=engine, if_exists='replace', index=False)
