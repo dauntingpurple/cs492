@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import create_engine
 import pandas as pd
 # Any time changes to the data is made, one of these should be ran to update the database.
@@ -25,13 +26,37 @@ def read_from_df(table_name):
     dataframe = pd.read_sql_table(table_name, con=engine)
     return dataframe
 
-def save_df_to_db(table_name, dataframe):
+def save_df_to_db(table_name, dataframe, new, who, index):
     """
     Save a single DataFrame to an SQLite database.
     """
     engine = create_engine('sqlite:///school_management_system.db')
     dataframe.to_sql(table_name, con=engine, if_exists='replace', index=False)
+    log_change(table_name, new, who, index)
 
+def log_change(table_name, new, changed_by, index):
+    global next_change_id  # Use the global variable for change ID
+    global audit_log_df
+    
+    if (new):
+        change_type = 'INSERT'
+    else:
+        'UPDATE'
+
+    # Create a new entry in the audit log
+    new_entry = {
+        'change_id': (audit_log_df.index[-1]) + 1,
+        'table_name': table_name,
+        'record_id': index,
+        'change_type': change_type,
+        'change_timestamp': datetime.now(),
+        'changed_by': changed_by
+    }
+    
+    # Append the new entry to the audit log DataFrame and push to database
+    audit_log_df = audit_log_df.append(new_entry, ignore_index=True)
+    engine = create_engine('sqlite:///school_management_system.db')
+    audit_log_df.to_sql("audit_log", con=engine, if_exists='replace', index=False)
 
 """
 # Example usage to save all dataframes to database: #
@@ -41,12 +66,13 @@ dataframes = {
     'enrollments': enrollments_df,
     'grades': grades_df
 }
-"""
+
 def save_all_changes():
-    """
-    Save multiple DataFrames to an SQLite database.
-    """
+
+    #Save multiple DataFrames to an SQLite database.
+
     engine = create_engine('sqlite:///school_management_system.db')
     students_df.to_sql('students', con=engine, if_exists='replace', index=False)
     for table_name, df in dataframes.items():
         df.to_sql(table_name, con=engine, if_exists='replace', index=False)
+"""

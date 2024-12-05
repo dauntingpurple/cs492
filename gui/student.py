@@ -9,6 +9,9 @@ class StudentManagement:
         """
         Adds a new student to the database.
         """
+        new = True
+        who = "user" #Need to figure out how to get the username here
+        
         # Validate input fields
         if not first_name or not last_name or not dob:
             messagebox.showerror("Input Error", "All fields are required!")
@@ -19,7 +22,7 @@ class StudentManagement:
             new_index = (students_df.index[-1]) + 1
             new_student = {first_name, last_name, dob, address, email, new_index}
             students_df = students_df.append(new_student)
-            save_df_to_db('students', students_df)
+            save_df_to_db('students', students_df, new, who, new_index)
 
             # Show success message
             messagebox.showinfo("Success", "Student added successfully!")
