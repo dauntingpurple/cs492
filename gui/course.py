@@ -1,9 +1,11 @@
+import tkinter as tk
 from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
 
 class CourseManagement:
-	def __init__(self):
-		self.root = tk.Tk()
+	def __init__(self, show_callback=None):
+		self.root = tk.Toplevel()
 		self.root.title("Course Management")
+		self.show_callback = show_callback #Store the callback for later use
 
 	def add_course(self, course_name, credits):
 		courses_df = read_from_df('courses')

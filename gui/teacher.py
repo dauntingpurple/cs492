@@ -1,29 +1,50 @@
+import tkinter as tk
+from tkinter import messagebox
 from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
 
-class TeacherManagement:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title("Teacher Management")
 
-    def add_teacher(self, first_name, last_name, qualifications, course_name):
+class TeacherManagement:
+    def __init__(self, show_callback=None):
+        self.root = tk.Toplevel()
+        self.root.title("Teacher Management")
+        self.show_callback = show_callback  # Store the callback for later use
+
+    def add_teacher(self, first_name, last_name, dob, qualifications):
         """
         Adds a new teacher to the database.
         """
         # Validate input fields
-        if not first_name or not last_name:
+        if not all([first_name, last_name, dob, qualifications]):
             messagebox.showerror("Input Error", "All fields are required!")
             return
 
         try:
+            # Validate and format the Date of Birth
+            from datetime import datetime
+            try:
+                dob = datetime.strptime(dob, "%Y-%m-%d").strftime("%Y-%m-%d")
+            except ValueError:
+                messagebox.showerror("Input Error", "Invalid Date of Birth format! Use YYYY-MM-DD.")
+                return
+
+            # Fetch the teachers DataFrame
             teachers_df = read_from_df('teachers')
-            new_index = (teachers_df.index[-1]) + 1
-            new_teacher = {first_name, last_name, qualifications, course_name, new_index}
-            teachers_df = teachers_df.append(new_teacher)
+            new_index = (teachers_df.index[-1]) + 1 if not teachers_df.empty else 1
+            new_teacher = {
+                "first_name": first_name,
+                "last_name": last_name,
+                "date_of_birth": dob,
+                "qualifications": qualifications,
+                "teacher_id": new_index
+            }
+
+            # Append new teacher to DataFrame
+            teachers_df = teachers_df.append(new_teacher, ignore_index=True)
             save_df_to_db('teachers', teachers_df)
 
             # Show success message
             messagebox.showinfo("Success", "Teacher added successfully!")
-            
+
         except Exception as e:
             # Show error message if something goes wrong
             messagebox.showerror("Database Error", f"An error occurred: {e}")
@@ -44,7 +65,7 @@ class TeacherManagement:
         print(teachers_df)
 
         # Add a title label
-        tk.Label(display_window, text="teacher List", font=("Helvetica", 14, "bold")).pack(pady=10)
+        tk.Label(display_window, text="Teacher List", font=("Helvetica", 14, "bold")).pack(pady=10)
 
         # Create a frame to hold the teacher data and make it scrollable
         frame = tk.Frame(display_window)
@@ -66,11 +87,7 @@ class TeacherManagement:
         canvas.create_window((0, 0), window=inner_frame, anchor="nw")
 
         # Display teacher data dynamically using labels
-        #for index, row in df.iterrows():
-        #    tk.Label(inner_frame, text=f"ID: {row['teacher_id']}, "
-        #                               f"Name: {row['first_name']} {row['last_name']}, "
-        #                               f"DOB: {row['date_of_birth']}").pack(anchor="w", padx=10, pady=2)
-        tk.Label(inner_frame, text = teachers_df).pack(anchor="w", padx=10, pady=2)
+        tk.Label(inner_frame, text=teachers_df).pack(anchor="w", padx=10, pady=2)
 
         # Configure the canvas size dynamically based on inner_frame
         inner_frame.update_idletasks()
@@ -89,19 +106,24 @@ class TeacherManagement:
         last_name_entry = tk.Entry(self.root)
         last_name_entry.grid(row=1, column=1)
 
-        tk.Label(self.root, text="Qualification").grid(row=2, column=0)
+        tk.Label(self.root, text="Date of Birth (YYYY-MM-DD)").grid(row=2, column=0)
+        dob_entry = tk.Entry(self.root)  # Define dob_entry
+        dob_entry.grid(row=2, column=1)
+
+        tk.Label(self.root, text="Qualification").grid(row=3, column=0)
         qual_entry = tk.Entry(self.root)
-        qual_entry.grid(row=2, column=1)
+        qual_entry.grid(row=3, column=1)
 
         # Add buttons for actions
         tk.Button(self.root, text="Add Teacher", command=lambda: self.add_teacher(
             first_name_entry.get(),
             last_name_entry.get(),
-            dob_entry.get()
-        )).grid(row=3, column=1, pady=10)
+            dob_entry.get(),  # Pass dob_entry value
+            qual_entry.get()
+        )).grid(row=4, column=1, pady=10)
 
-        tk.Button(self.root, text="Display teachers", command=self.display_teachers).grid(row=4, column=1, pady=10)
-        tk.Button(self.root, text="Exit", command=self.root.destroy).grid(row=5, column=1, pady=10)
+        tk.Button(self.root, text="Display Teachers", command=self.display_teachers).grid(row=5, column=1, pady=10)
+        tk.Button(self.root, text="Exit", command=self.root.destroy).grid(row=6, column=1, pady=10)
 
         # Start the main loop
         self.root.mainloop()
@@ -111,4 +133,3 @@ class TeacherManagement:
 if __name__ == "__main__":
     app = TeacherManagement()
     app.run()
-

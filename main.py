@@ -1,12 +1,11 @@
 from gui.login import Login
-from src.db_handling.saveChangeToDatabase import save_all_changes
+from src.db_handling.saveChangeToDatabase import save_df_to_db
 import atexit
 
 # Debug: Log when save_all_changes() is called
 def on_exit():
     try:
         print("Attempting to save changes to the database...")
-        save_all_changes()
         # Thinking we actually save periodically so that if there's multiple users data gets updated pretty regularly.
         print("Changes saved successfully.")
     except Exception as e:
