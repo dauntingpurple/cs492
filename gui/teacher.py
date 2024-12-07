@@ -5,7 +5,7 @@ class TeacherManagement:
         self.root = tk.Tk()
         self.root.title("Teacher Management")
 
-    def add_teacher(self, first_name, last_name, dob, address, email):
+    def add_teacher(self, first_name, last_name, qualifications, course_name):
         """
         Adds a new teacher to the database.
         """
@@ -17,7 +17,7 @@ class TeacherManagement:
         try:
             teachers_df = read_from_df('teachers')
             new_index = (teachers_df.index[-1]) + 1
-            new_teacher = {first_name, last_name, dob, address, email, new_index}
+            new_teacher = {first_name, last_name, qualifications, course_name, new_index}
             teachers_df = teachers_df.append(new_teacher)
             save_df_to_db('teachers', teachers_df)
 

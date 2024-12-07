@@ -16,6 +16,16 @@ This database schema supports the School Management System and includes tables f
   - `email` (VARCHAR)
   - `student_id` (INTEGER, PRIMARY KEY)
 
+  ### Teachers
+- **Table Name:** teachers
+- **Purpose:** Stores teacher information.
+- **Columns:**
+  - `first_name` (VARCHAR)
+  - `last_name` (VARCHAR)
+  - `qualifications` (VARCHAR)
+  - `course_name` (VARCHAR)
+  - `teacher_id` (INTEGER, PRIMARY KEY)
+
 ### Courses
 - **Table Name:** courses
 - **Purpose:** Stores course information.
