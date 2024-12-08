@@ -3,6 +3,7 @@ from gui.student import StudentManagement  # Import the Student Management GUI
 from gui.course import CourseManagement  # Import the Course Management GUI
 from gui.enrollment import EnrollmentManagement  # Import the Enrollment Management GUI
 
+
 class Dashboard:
     def __init__(self, role):
         self.root = tk.Tk()
@@ -10,22 +11,13 @@ class Dashboard:
         self.role = role
 
     def open_student_management(self):
-        self.hide()  # Hide the dashboard window
-        StudentManagement(self.show).run()  # Pass the `show` method as the callback
+        StudentManagement()  # Directly instantiate the class
 
     def open_course_management(self):
-        self.hide()  # Hide the dashboard window
-        CourseManagement(self.show).run()  # Pass the `show` method as the callback
+        CourseManagement()  # Directly instantiate the class
 
     def open_enrollment_management(self):
-        self.hide()  # Hide the dashboard window
-        EnrollmentManagement(self.show).run()  # Pass the `show` method as the callback
-
-    def hide(self):
-        self.root.withdraw()  # Hide the dashboard window
-
-    def show(self):
-        self.root.deiconify()  # Show the dashboard window
+        EnrollmentManagement()  # Directly instantiate the class
 
     def run(self):
         # Add welcome label
@@ -55,3 +47,8 @@ class Dashboard:
 
     def view_grades(self):
         print("Student: Viewing Grades")
+
+
+if __name__ == "__main__":
+    dashboard = Dashboard(role="Admin")  # Example: Start as Admin
+    dashboard.run()
