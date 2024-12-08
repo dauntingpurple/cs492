@@ -2,5 +2,4 @@ flask
 sqlalchemy
 pytest
 pandas
-tinker
 pyinstaller

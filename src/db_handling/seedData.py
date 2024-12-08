@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from faker import Faker
 from sqlalchemy import create_engine
+from datetime import datetime
 
 # This is solely to generate fake data for the database
 
@@ -61,6 +62,22 @@ grades_data = {
 grades_df = pd.DataFrame(grades_data)
 grades_df["grade_id"] = grades_df.index
 
+audit_log_df = {
+    'change_id': [0],
+    'table_name':["test"],
+    'record_id': ["0"],
+    'change_type': ["INSERT"],
+    'change_timestamp': [datetime.now()],
+    'changed_by': ["admin"]} 
+
+messages_df = {
+    'sender': ["test"],
+    'receiver': ["test1"],
+    'message_text': ["test1"],
+    'timestamp': [datetime.now()],
+    'is_read': [False]
+    }
+
 # Display the generated data
 print("Students DataFrame:")
 print(students_df)
@@ -74,8 +91,9 @@ print(grades_df)
 
 # Create a SQLite database
 engine = create_engine('sqlite:///school_management_system.db')
-
 # Save the generated DataFrames to the database
+audit_log_df .to_sql('audit_log', con=engine, if_exists='replace', index=False)
+messages_df .to_sql('messages', con=engine, if_exists='replace', index=False)
 students_df.to_sql('students', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
