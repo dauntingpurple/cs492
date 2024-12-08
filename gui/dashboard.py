@@ -2,6 +2,7 @@ import tkinter as tk
 from gui.student import StudentManagement  # Import the Student Management GUI
 from gui.course import CourseManagement  # Import the Course Management GUI
 from gui.enrollment import EnrollmentManagement  # Import the Enrollment Management GUI
+from gui.communication import CommunicationSystem  # Import the Communication System
 
 
 class Dashboard:
@@ -19,6 +20,13 @@ class Dashboard:
     def open_enrollment_management(self):
         EnrollmentManagement()  # Directly instantiate the class
 
+    def open_communication_system(self):
+        """
+        Opens the Communication System in a new window.
+        """
+        communication_window = tk.Toplevel(self.root)
+        CommunicationSystem(communication_window, current_user=self.role)
+
     def run(self):
         # Add welcome label
         tk.Label(self.root, text=f"Welcome to the {self.role} Dashboard!", font=("Arial", 16)).pack(pady=20)
@@ -28,8 +36,10 @@ class Dashboard:
             tk.Button(self.root, text="Manage Students", command=self.open_student_management).pack(pady=5)
             tk.Button(self.root, text="Manage Courses", command=self.open_course_management).pack(pady=5)
             tk.Button(self.root, text="Manage Enrollments", command=self.open_enrollment_management).pack(pady=5)
+            tk.Button(self.root, text="Messaging System", command=self.open_communication_system).pack(pady=5)  # New button
         elif self.role == "Teacher":
             tk.Button(self.root, text="Enter Grades", command=self.enter_grades).pack(pady=5)
+            tk.Button(self.root, text="Messaging System", command=self.open_communication_system).pack(pady=5)  # New button
         elif self.role == "Registrar":
             tk.Button(self.root, text="Manage Enrollments", command=self.open_enrollment_management).pack(pady=5)
         elif self.role == "Student":

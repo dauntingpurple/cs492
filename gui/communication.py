@@ -3,11 +3,19 @@ from tkinter import messagebox, scrolledtext
 import pandas as pd
 from datetime import datetime
 
-#need to get how the user to and from somehow
+
 class CommunicationSystem:
-    def __init__(self, master):
+    def __init__(self, master, current_user):
+        """
+        Initializes the Communication System.
+
+        Args:
+            master (tk.Toplevel): The parent Tkinter window.
+            current_user (str): The current user (role or username).
+        """
         self.master = master
         self.master.title("Teacher-Administrator Communication")
+        self.current_user = current_user  # Store the current user's role or name
 
         # Initialize a DataFrame to store messages
         self.messages_df = pd.DataFrame(columns=['sender', 'receiver', 'message_text', 'timestamp', 'is_read'])
@@ -16,14 +24,11 @@ class CommunicationSystem:
         # GUI Elements
         self.setup_gui()
 
-    def run(self):
+    def setup_gui(self):
         """
-        Starts the GUI application.
+        Sets up the GUI for messaging.
         """
-        # Sender
-        tk.Label(self.master, text="Sender:").pack()
-        self.sender_entry = tk.Entry(self.master)
-        self.sender_entry.pack()
+        tk.Label(self.master, text=f"Logged in as: {self.current_user}", font=("Arial", 12, "bold")).pack(pady=5)
 
         # Receiver
         tk.Label(self.master, text="Receiver:").pack()
@@ -36,21 +41,25 @@ class CommunicationSystem:
         self.message_text_entry.pack()
 
         # Send Message Button
-        send_button = tk.Button(self.master, text="Send Message", command=self.send_message)
-        send_button.pack()
+        tk.Button(self.master, text="Send Message", command=self.send_message).pack(pady=5)
 
         # Message List
         tk.Label(self.master, text="Messages:").pack()
         self.message_list = scrolledtext.ScrolledText(self.master, width=50, height=15)
         self.message_list.pack()
 
+        self.load_messages()  # Load initial messages
+
     def send_message(self):
-        sender = self.sender_entry.get()
+        """
+        Handles sending messages.
+        """
+        sender = self.current_user
         receiver = self.receiver_entry.get()
         message_text = self.message_text_entry.get("1.0", tk.END).strip()
 
-        if not sender or not receiver or not message_text:
-            messagebox.showwarning("Warning", "All fields are required!")
+        if not receiver or not message_text:
+            messagebox.showwarning("Warning", "Receiver and message text are required!")
             return
 
         # Create a new message entry
@@ -62,19 +71,27 @@ class CommunicationSystem:
             'is_read': False
         }
 
-        # Append the new message to the temporary storage
-        self.unsent_messages.append(new_message)
+        # Convert new_message to a DataFrame
+        new_message_df = pd.DataFrame([new_message])
 
-        # Move unsent messages to the main DataFrame
-        self.messages_df = self.messages_df.append(new_message, ignore_index=True)
+        # Append new_message_df to the main DataFrame
+        if self.messages_df.empty:
+            self.messages_df = new_message_df
+        else:
+            self.messages_df = pd.concat([self.messages_df, new_message_df], ignore_index=True)
 
+        # Clear the message text box
         self.message_text_entry.delete("1.0", tk.END)
         messagebox.showinfo("Success", "Message sent successfully!")
         self.load_messages()
 
     def load_messages(self):
+        """
+        Loads and displays messages relevant to the current user.
+        """
         self.message_list.delete(1.0, tk.END)  # Clear current messages
-        # Filter messages for the current user (both as sender and receiver)
+
+        # Filter messages for the current user
         user_messages = self.messages_df[
             (self.messages_df['sender'] == self.current_user) |
             (self.messages_df['receiver'] == self.current_user)
@@ -84,7 +101,9 @@ class CommunicationSystem:
             msg_display = f"{msg['sender']} to {msg['receiver']}: {msg['message_text']} (at {msg['timestamp']})\n"
             self.message_list.insert(tk.END, msg_display)
 
+
 if __name__ == "__main__":
     root = tk.Tk()
-    communication_system = CommunicationSystem(root)
+    current_user = "Admin"  # Example user; replace with dynamic user role
+    communication_system = CommunicationSystem(root, current_user)
     root.mainloop()
