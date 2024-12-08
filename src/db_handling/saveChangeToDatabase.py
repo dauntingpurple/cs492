@@ -3,6 +3,11 @@ from sqlalchemy import create_engine
 import pandas as pd
 # Any time changes to the data is made, one of these should be ran to update the database.
 
+#initialize the audit log DatFrame globally
+audit_log_df = pd.DataFrame(columns=[
+    "change_id", "table_name", "record_id", "change_type", "change_timestamp", "changed_by", "old_value", "new_value"
+])
+
 def refresh_df_from_db():
     """
     Open all DataFrames from an SQLite database.
