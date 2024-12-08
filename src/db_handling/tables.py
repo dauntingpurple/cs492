@@ -8,8 +8,8 @@ students_data = {
     'first_name': ['John', 'Jane', 'Jim'],
     'last_name': ['Doe', 'Smith', 'Brown'],
     'date_of_birth': pd.to_datetime(['2000-01-01', '2001-02-02', '2002-03-03']),
-    'address' : ['123 Main St, Springfield, OH', '95 Donahue Blvd, Appleton, WI', '802 Salebarn Rd, Fort Pierre, SD'],
-    'email' : ['john.doe@example.com', 'jane.smith@testmail.org', 'brownj@dummydata.net']
+    'address': ['123 Main St, Springfield, OH', '95 Donahue Blvd, Appleton, WI', '802 Salebarn Rd, Fort Pierre, SD'],
+    'email': ['john.doe@example.com', 'jane.smith@testmail.org', 'brownj@dummydata.net']
 }
 students_df = pd.DataFrame(students_data)
 students_df["student_id"] = students_df.index
@@ -51,6 +51,17 @@ grades_data = {
 grades_df = pd.DataFrame(grades_data)
 grades_df["grade_id"] = grades_df.index
 
+# Define the Classroom Schedules table
+classroom_schedules_data = {
+    'classroom_name': ['Room 101', 'Room 102', 'Room 103'],
+    'start_time': pd.to_datetime(['2023-12-01 09:00', '2023-12-01 10:00', '2023-12-01 11:00']),
+    'end_time': pd.to_datetime(['2023-12-01 10:00', '2023-12-01 11:00', '2023-12-01 12:00']),
+    'reserved_by': ['John Doe', 'Jane Smith', 'Jim Brown'],
+    'purpose': ['Math Class', 'Science Meeting', 'History Lecture']
+}
+classroom_schedules_df = pd.DataFrame(classroom_schedules_data)
+
+# Initialize audit logs and messages
 audit_log_columns = ['change_id', 'table_name', 'record_id', 'change_type', 'change_timestamp', 'changed_by', 'old_value', 'new_value']
 audit_log_df = pd.DataFrame(columns=audit_log_columns)
 messages_df_columns = ['sender', 'receiver', 'message_text', 'timestamp', 'is_read']
@@ -65,6 +76,8 @@ print("\nEnrollments DataFrame:")
 print(enrollments_df.head())
 print("\nGrades DataFrame:")
 print(grades_df.head())
+print("\nClassroom Schedules DataFrame:")
+print(classroom_schedules_df.head())
 
 # Create a SQLite database
 engine = create_engine('sqlite:///school_management_system.db')
@@ -75,5 +88,6 @@ teachers_df.to_sql('teachers', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
 grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
+classroom_schedules_df.to_sql('classroom_schedules', con=engine, if_exists='replace', index=False)
 audit_log_df.to_sql('audit_log', con=engine, if_exists='replace', index=False)
 messages_df.to_sql('messages', con=engine, if_exists='replace', index=False)
