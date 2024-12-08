@@ -1,18 +1,17 @@
-import pandas as pd
-from sqlalchemy import create_engine
+import sqlite3
 
-engine = create_engine('sqlite:///school_management_system.db')
+conn = sqlite3.connect('school_management_system.db')
+cursor = conn.cursor()
 
-# Create a new student DataFrame
-new_student = pd.DataFrame([{
-    'student_id': 999,
-    'first_name': 'Test',
-    'last_name': 'User',
-    'date_of_birth': '2000-01-01'
-}])
+# Query the classroom_schedules table
+cursor.execute("SELECT * FROM classroom_schedules")
+rows = cursor.fetchall()
 
-try:
-    new_student.to_sql('students', con=engine, if_exists='append', index=False)
-    print("Test: Student added successfully.")
-except Exception as e:
-    print(f"Test: Failed to add student: {e}")
+if rows:
+    print("Classroom Schedules Data:")
+    for row in rows:
+        print(row)
+else:
+    print("No data found in the classroom_schedules table.")
+
+conn.close()
