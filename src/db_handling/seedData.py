@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from faker import Faker
 from sqlalchemy import create_engine
+from datetime import datetime
 
 # This is solely to generate fake data for the database
 
@@ -74,7 +75,8 @@ print(grades_df)
 
 # Create a SQLite database
 engine = create_engine('sqlite:///school_management_system.db')
-
+audit_log_df = {'change_id': [0], 'table_name':["test"], 'record_id': ["0"], 'change_type': ["INSERT"], 'change_timestamp': [datetime.now()], 'changed_by': ["admin"]} 
+audit_log_df .to_sql('audit_log', con=engine, if_exists='replace', index=False)
 # Save the generated DataFrames to the database
 students_df.to_sql('students', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)

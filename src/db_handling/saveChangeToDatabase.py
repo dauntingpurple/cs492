@@ -52,7 +52,7 @@ def log_change(table_name, new, changed_by, index):
         'change_timestamp': datetime.now(),
         'changed_by': changed_by
     }
-    
+    audit_log_df= pd.read_sql_table('audit_log', con=engine)
     # Append the new entry to the audit log DataFrame and push to database
     audit_log_df = audit_log_df.append(new_entry, ignore_index=True)
     engine = create_engine('sqlite:///school_management_system.db')
