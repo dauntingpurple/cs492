@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
+import hashlib
 
 ## This is for if we want to use 'real data' and not the seedData
 
@@ -61,6 +62,18 @@ classroom_schedules_data = {
 }
 classroom_schedules_df = pd.DataFrame(classroom_schedules_data)
 
+user_data = {
+    'username': ['admin', 'teacher', 'registrar', 'student'],
+    'password_hash': [
+        hashlib.sha256("admin123".encode()).hexdigest(),
+        hashlib.sha256("teacher123".encode()).hexdigest(),
+        hashlib.sha256("registrar123".encode()).hexdigest(),
+        hashlib.sha256("student123".encode()).hexdigest()
+        ],
+    'role': ['admin', 'teacher', 'student']
+}
+user_df = pd.DataFrame(user_data)
+
 # Initialize audit logs and messages
 audit_log_columns = ['change_id', 'table_name', 'record_id', 'change_type', 'change_timestamp', 'changed_by', 'old_value', 'new_value']
 audit_log_df = pd.DataFrame(columns=audit_log_columns)
@@ -88,6 +101,7 @@ teachers_df.to_sql('teachers', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
 grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
+user_df.to_sql('users', con=engine, if_exists='replace', index=False)
 classroom_schedules_df.to_sql('classroom_schedules', con=engine, if_exists='replace', index=False)
 audit_log_df.to_sql('audit_log', con=engine, if_exists='replace', index=False)
 messages_df.to_sql('messages', con=engine, if_exists='replace', index=False)
