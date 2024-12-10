@@ -65,7 +65,6 @@ grades_df["grade_id"] = grades_df.index
 # Create Calendar Scheduling Data
 num_events = 10
 base_date = datetime.now()
-
 calendar_data = {
     'classroom_name': [f"Room {np.random.randint(100, 200)}" for _ in range(num_events)],
     'start_time': [(base_date + timedelta(days=i, hours=9)).strftime("%Y-%m-%d %H:%M:%S") for i in range(num_events)],
@@ -76,7 +75,7 @@ calendar_data = {
 calendar_df = pd.DataFrame(calendar_data)
 
 # Initialize Audit Logs and Messages
-audit_log_df = {
+audit_log_data = {
     'change_id': [0],
     'table_name': ["test"],
     'record_id': ["0"],
@@ -84,14 +83,16 @@ audit_log_df = {
     'change_timestamp': [datetime.now()],
     'changed_by': ["admin"]
 }
+audit_log_df = pd.DataFrame(audit_log_data)
 
-messages_df = {
+messages_data = {
     'sender': ["test"],
     'receiver': ["test1"],
     'message_text': ["test1"],
     'timestamp': [datetime.now()],
     'is_read': [False]
 }
+messages_df = pd.DataFrame(messages_data)
 
 # Display the generated data
 print("Students DataFrame:")
@@ -109,8 +110,8 @@ print(calendar_df)
 engine = create_engine('sqlite:///school_management_system.db')
 
 # Save the generated DataFrames to the database
-pd.DataFrame(audit_log_df).to_sql('audit_log', con=engine, if_exists='replace', index=False)
-pd.DataFrame(messages_df).to_sql('messages', con=engine, if_exists='replace', index=False)
+audit_log_df.to_sql('audit_log', con=engine, if_exists='replace', index=False)
+messages_df.to_sql('messages', con=engine, if_exists='replace', index=False)
 students_df.to_sql('students', con=engine, if_exists='replace', index=False)
 courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
