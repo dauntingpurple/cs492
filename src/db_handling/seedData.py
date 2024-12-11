@@ -1,3 +1,4 @@
+import hashlib
 import pandas as pd
 import numpy as np
 from faker import Faker
@@ -106,6 +107,21 @@ print(grades_df)
 print("\nCalendar Scheduling DataFrame:")
 print(calendar_df)
 
+user_data = {
+    'username': ['admin', 'teacher', 'registrar', 'student'],
+    'password_hash': [
+        hashlib.sha256("admin123".encode()).hexdigest(),
+        hashlib.sha256("teacher123".encode()).hexdigest(),
+        hashlib.sha256("registrar123".encode()).hexdigest(),
+        hashlib.sha256("student123".encode()).hexdigest()
+        ],
+    'role': ['admin', 'teacher', 'registrar', 'student']
+}
+user_df = pd.DataFrame(user_data)
+
+print("\nUsers DataFrame:")
+print(user_df)
+
 # Create a SQLite database
 engine = create_engine('sqlite:///school_management_system.db')
 
@@ -117,3 +133,4 @@ courses_df.to_sql('courses', con=engine, if_exists='replace', index=False)
 enrollments_df.to_sql('enrollments', con=engine, if_exists='replace', index=False)
 grades_df.to_sql('grades', con=engine, if_exists='replace', index=False)
 calendar_df.to_sql('classroom_schedules', con=engine, if_exists='replace', index=False)
+user_df.to_sql('users', con=engine, if_exists='replace', index=False)
