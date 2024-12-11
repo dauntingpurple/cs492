@@ -59,20 +59,20 @@ class Dashboard:
         """
         tk.Label(self.root, text=f"Welcome to the {self.role} Dashboard!", font=("Arial", 16)).pack(pady=20)
 
-        if self.role == "Admin":
+        if self.role == "admin":
             tk.Button(self.root, text="Manage Students", command=self.open_student_management).pack(pady=5)
             tk.Button(self.root, text="Manage Courses", command=self.open_course_management).pack(pady=5)
             tk.Button(self.root, text="Manage Enrollments", command=self.open_enrollment_management).pack(pady=5)
             tk.Button(self.root, text="Messaging System", command=self.open_communication_system).pack(pady=5)
             tk.Button(self.root, text="Classroom Schedules", command=self.open_classroom_schedule).pack(pady=5)
-        elif self.role == "Teacher":
+        elif self.role == "teacher":
             tk.Button(self.root, text="Enter Grades", command=self.enter_grades).pack(pady=5)
             tk.Button(self.root, text="Messaging System", command=self.open_communication_system).pack(pady=5)
             tk.Button(self.root, text="Classroom Schedules", command=self.open_classroom_schedule).pack(pady=5)
-        elif self.role == "Registrar":
+        elif self.role == "registrar":
             tk.Button(self.root, text="Manage Enrollments", command=self.open_enrollment_management).pack(pady=5)
             tk.Button(self.root, text="Classroom Schedules", command=self.open_classroom_schedule).pack(pady=5)
-        elif self.role == "Student":
+        elif self.role == "student":
             tk.Button(self.root, text="Messaging System", command=self.open_communication_system).pack(pady=5)
 
         tk.Button(self.root, text="Logout", command=self.root.destroy).pack(pady=20)
