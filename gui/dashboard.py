@@ -14,7 +14,8 @@ class Dashboard:
         """
         self.root = tk.Tk()
         self.root.title(f"Dashboard - {role}")
-        self.role = role
+        self.role = role[0]
+        self.current_user = role[1]
 
     def open_student_management(self):
         """
@@ -38,8 +39,7 @@ class Dashboard:
         """
         Opens the Messaging System GUI.
         """
-        communication_window = tk.Toplevel(self.root)
-        CommunicationSystem(communication_window, current_user=self.role)
+        CommunicationSystem(current_user=self.current_user)
 
     def enter_grades(self):
         """
@@ -51,7 +51,7 @@ class Dashboard:
         """
         Opens the Classroom Schedule Management GUI.
         """
-        ClassroomSchedule()
+        ClassroomSchedule(current_user=self.current_user)
 
     def run(self):
         """
