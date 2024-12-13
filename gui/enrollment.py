@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
 import pandas as pd
 
@@ -15,12 +15,15 @@ class EnrollmentManagement:
         """
         Sets up the GUI for enrollment management.
         """
+        enrollments_df = read_from_df('enrollments')
         tk.Label(self.root, text="Student ID").grid(row=0, column=0, padx=10, pady=10)
-        student_id_entry = tk.Entry(self.root)
+        student_id_entry = ttk.Combobox(self.root)
+        student_id_entry['values'] = enrollments_df['student_id'].tolist()
         student_id_entry.grid(row=0, column=1, padx=10, pady=10)
 
         tk.Label(self.root, text="Course ID").grid(row=1, column=0, padx=10, pady=10)
-        course_id_entry = tk.Entry(self.root)
+        course_id_entry = ttk.Combobox(self.root)
+        course_id_entry['values'] = enrollments_df['course_id'].tolist()
         course_id_entry.grid(row=1, column=1, padx=10, pady=10)
 
         tk.Button(
