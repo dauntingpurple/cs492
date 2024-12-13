@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
 import pandas as pd
 
@@ -15,12 +15,15 @@ class EnrollmentManagement:
         """
         Sets up the GUI for enrollment management.
         """
+        enrollments_df = read_from_df('enrollments')
         tk.Label(self.root, text="Student ID").grid(row=0, column=0, padx=10, pady=10)
-        student_id_entry = tk.Entry(self.root)
+        student_id_entry = ttk.Combobox(self.root)
+        student_id_entry['values'] = enrollments_df['student_id'].tolist()
         student_id_entry.grid(row=0, column=1, padx=10, pady=10)
 
         tk.Label(self.root, text="Course ID").grid(row=1, column=0, padx=10, pady=10)
-        course_id_entry = tk.Entry(self.root)
+        course_id_entry = ttk.Combobox(self.root)
+        course_id_entry['values'] = enrollments_df['course_id'].tolist()
         course_id_entry.grid(row=1, column=1, padx=10, pady=10)
 
         tk.Button(
@@ -89,28 +92,28 @@ class EnrollmentManagement:
             frame = tk.Frame(display_window)
             frame.pack(fill=tk.BOTH, expand=True)
 
+            # Add a scrollbar
             scrollbar = tk.Scrollbar(frame, orient=tk.VERTICAL)
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-            canvas = tk.Canvas(frame, yscrollcommand=scrollbar.set)
-            canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            # Create the Treeview
+            tree = ttk.Treeview(frame, columns=('enrollment_id', 'student_id', 'course_id'), show='headings', yscrollcommand=scrollbar.set)
+            tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            scrollbar.config(command=tree.yview)
+            
+            # Define headings
+            tree.heading('enrollment_id', text='Enrollment ID')
+            tree.heading('student_id', text='Student ID')
+            tree.heading('course_id', text='Course ID')
 
-            scrollbar.config(command=canvas.yview)
+            # Set column widths
+            tree.column('enrollment_id', anchor='center', width=100)
+            tree.column('student_id', anchor='center', width=100)
+            tree.column('course_id', anchor='center', width=100)
 
-            inner_frame = tk.Frame(canvas)
-            canvas.create_window((0, 0), window=inner_frame, anchor="nw")
-
-            # Add enrollment data to the scrollable frame
+            # Add enrollment data to the Treeview
             for idx, enrollment in enrollments_df.iterrows():
-                enrollment_info = (
-                    f"Enrollment ID: {enrollment['enrollment_id']}, "
-                    f"Student ID: {enrollment['student_id']}, "
-                    f"Course ID: {enrollment['course_id']}"
-                )
-                tk.Label(inner_frame, text=enrollment_info).pack(anchor="w", padx=10, pady=2)
-
-            inner_frame.update_idletasks()
-            canvas.config(scrollregion=canvas.bbox("all"))
+                tree.insert('', 'end', values=(enrollment['enrollment_id'], enrollment['student_id'], enrollment['course_id']))
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to display enrollments: {e}")
