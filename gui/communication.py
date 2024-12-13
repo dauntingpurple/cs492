@@ -1,17 +1,20 @@
 import tkinter as tk
-from tkinter import messagebox, scrolledtext, ttk
+from tkinter import messagebox, scrolledtext
 import pandas as pd
 from datetime import datetime
-from src.db_handling.saveChangeToDatabase import read_from_df
 
 
 class CommunicationSystem:
-    def __init__(self, current_user):
+    def __init__(self, master, current_user):
         """
         Initializes the Communication System.
-        """
 
-        self.title("Teacher-Administrator Communication")
+        Args:
+            master (tk.Toplevel): The parent Tkinter window.
+            current_user (str): The current user (role or username).
+        """
+        self.master = master
+        self.master.title("Teacher-Administrator Communication")
         self.current_user = current_user  # Store the current user's role or name
 
         # Initialize a DataFrame to store messages
@@ -25,33 +28,24 @@ class CommunicationSystem:
         """
         Sets up the GUI for messaging.
         """
-        user_df = read_from_df('users') # Get userlist
-        valid_users = [] # Initialized for all users that are allowed to send and recieve messages
-        for i in range(len(user_df['username'])):
-            if user_df['role'][i] != 'student':
-                valid_users.append({
-                    'username': user_df['username'][i]
-                })
-
-        tk.Label(self, text=f"Logged in as: {self.current_user}", font=("Arial", 12, "bold")).pack(pady=5)
+        tk.Label(self.master, text=f"Logged in as: {self.current_user}", font=("Arial", 12, "bold")).pack(pady=5)
 
         # Receiver
-        tk.Label(self, text="Receiver:").pack()
-        self.receiver_entry = ttk.Combobox(self.root)
-        self.receiver_entry['values'] = valid_users
+        tk.Label(self.master, text="Receiver:").pack()
+        self.receiver_entry = tk.Entry(self.master)
         self.receiver_entry.pack()
 
         # Message Text
-        tk.Label(self, text="Message:").pack()
-        self.message_text_entry = scrolledtext.ScrolledText(self, width=40, height=10)
+        tk.Label(self.master, text="Message:").pack()
+        self.message_text_entry = scrolledtext.ScrolledText(self.master, width=40, height=10)
         self.message_text_entry.pack()
 
         # Send Message Button
-        tk.Button(self, text="Send Message", command=self.send_message).pack(pady=5)
+        tk.Button(self.master, text="Send Message", command=self.send_message).pack(pady=5)
 
         # Message List
-        tk.Label(self, text="Messages:").pack()
-        self.message_list = scrolledtext.ScrolledText(self, width=50, height=15)
+        tk.Label(self.master, text="Messages:").pack()
+        self.message_list = scrolledtext.ScrolledText(self.master, width=50, height=15)
         self.message_list.pack()
 
         self.load_messages()  # Load initial messages

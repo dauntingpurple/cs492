@@ -31,7 +31,7 @@ class Login:
             stored_hash = user['password_hash'].values[0]
             # Verify the password hash
             if self.hash_password(password) == stored_hash:
-                role = {user['role'].values[0], username}  # Assuming 'role' is in the DataFrame
+                role = user['role'].values[0]  # Assuming 'role' is in the DataFrame
                 messagebox.showinfo("Login Successful", f"Welcome, {username}!")
                 self.root.destroy()  # Close the login window
                 Dashboard(role).run()  # Pass the role to the dashboard
