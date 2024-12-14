@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from tkcalendar import Calendar
 import pandas as pd
 from datetime import datetime
@@ -37,9 +37,10 @@ class ClassroomSchedule:
             self.schedule_list.delete(0, tk.END)
 
             for _, schedule in schedules_df.iterrows():
+                reserved_by = f"{schedule['reserved_by']}"  # Adjusted for combobox changes
                 self.schedule_list.insert(
                     tk.END,
-                    f"{schedule['classroom_name']} | {schedule['start_time']} - {schedule['end_time']} | Reserved by: {schedule['reserved_by']}"
+                    f"{schedule['classroom_name']} | {schedule['start_time']} - {schedule['end_time']} | Reserved by: {reserved_by} | Purpose: {schedule['purpose']}"
                 )
         except Exception as e:
             messagebox.showerror("Error", f"Failed to refresh schedules: {e}")
@@ -60,8 +61,8 @@ class BookClassroom:
 
     def setup_gui(self):
         tk.Label(self.root, text="Classroom Name:").grid(row=0, column=0, padx=10, pady=5)
-        self.classroom_name_entry = tk.Entry(self.root)
-        self.classroom_name_entry.grid(row=0, column=1, padx=10, pady=5)
+        self.classroom_name_combobox = ttk.Combobox(self.root, values=self.get_classroom_names())
+        self.classroom_name_combobox.grid(row=0, column=1, padx=10, pady=5)
 
         tk.Label(self.root, text="Start Time (YYYY-MM-DD HH:MM):").grid(row=1, column=0, padx=10, pady=5)
         self.start_time_entry = tk.Entry(self.root)
@@ -72,8 +73,8 @@ class BookClassroom:
         self.end_time_entry.grid(row=2, column=1, padx=10, pady=5)
 
         tk.Label(self.root, text="Reserved By:").grid(row=3, column=0, padx=10, pady=5)
-        self.reserved_by_entry = tk.Entry(self.root)
-        self.reserved_by_entry.grid(row=3, column=1, padx=10, pady=5)
+        self.reserved_by_combobox = ttk.Combobox(self.root, values=self.get_reserved_by_names())
+        self.reserved_by_combobox.grid(row=3, column=1, padx=10, pady=5)
 
         tk.Label(self.root, text="Purpose:").grid(row=4, column=0, padx=10, pady=5)
         self.purpose_entry = tk.Entry(self.root)
@@ -81,12 +82,40 @@ class BookClassroom:
 
         tk.Button(self.root, text="Submit", command=self.book_classroom).grid(row=5, column=1, pady=10)
 
+    def get_classroom_names(self):
+        """
+        Fetch classroom names from the database or a predefined list.
+        """
+        try:
+            schedules_df = read_from_df('classroom_schedules')
+            return schedules_df['classroom_name'].unique().tolist()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to fetch classroom names: {e}")
+            return []
+
+    def get_reserved_by_names(self):
+        """
+        Fetch reserved_by names from the database or a predefined list.
+        """
+        try:
+            students_df = read_from_df('students')
+            teachers_df = read_from_df('teachers')
+
+            reserved_by_names = students_df.apply(lambda row: f"{row['first_name']} {row['last_name']}", axis=1).tolist()
+            reserved_by_names.extend(
+                teachers_df.apply(lambda row: f"{row['first_name']} {row['last_name']}", axis=1).tolist()
+            )
+            return reserved_by_names
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to fetch reserved_by names: {e}")
+            return []
+
     def book_classroom(self):
         try:
-            classroom_name = self.classroom_name_entry.get()
+            classroom_name = self.classroom_name_combobox.get()
             start_time = datetime.strptime(self.start_time_entry.get(), "%Y-%m-%d %H:%M")
             end_time = datetime.strptime(self.end_time_entry.get(), "%Y-%m-%d %H:%M")
-            reserved_by = self.reserved_by_entry.get()
+            reserved_by = self.reserved_by_combobox.get()
             purpose = self.purpose_entry.get()
 
             if not classroom_name or not reserved_by or not purpose:
@@ -125,7 +154,7 @@ class BookClassroom:
                 table_name='classroom_schedules',
                 dataframe=schedules_df,
                 new=new_booking.to_dict(orient='records'),
-                who="Teacher",
+                who="User",
                 index=None
             )
 
@@ -160,7 +189,6 @@ class CalendarView:
             schedules_df = read_from_df('classroom_schedules')
 
             schedules_df['start_time'] = pd.to_datetime(schedules_df['start_time'], errors='coerce')
-
             schedules_df = schedules_df.dropna(subset=['start_time'])
 
             for _, schedule in schedules_df.iterrows():
@@ -178,15 +206,14 @@ class CalendarView:
 
             schedules_df['start_time'] = pd.to_datetime(schedules_df['start_time'], errors='coerce')
             schedules_df['start_date'] = schedules_df['start_time'].dt.date
-
             schedules_df = schedules_df.dropna(subset=['start_time'])
 
             selected_events = schedules_df[schedules_df['start_date'] == selected_date_obj]
 
             self.events_list.delete(0, tk.END)
-
             for _, event in selected_events.iterrows():
-                event_info = f"{event['classroom_name']} | {event['start_time']} - {event['end_time']} | Purpose: {event['purpose']}"
+                reserved_by = f"{event['reserved_by']}"
+                event_info = f"{event['classroom_name']} | {event['start_time']} - {event['end_time']} | Reserved by: {reserved_by} | Purpose: {event['purpose']}"
                 self.events_list.insert(tk.END, event_info)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to show events: {e}")
