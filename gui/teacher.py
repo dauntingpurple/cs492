@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import pandas as pd
-from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
+from src.saveChangeToDatabase import save_df_to_db, read_from_df
 
 
 class TeacherManagement:
@@ -37,7 +37,7 @@ class TeacherManagement:
             }
 
             teachers_df = teachers_df.append(new_teacher, ignore_index=True)
-            save_df_to_db('teachers', teachers_df)
+            save_df_to_db('teachers', teachers_df, new_index)
 
             messagebox.showinfo("Success", "Teacher added successfully!")
 

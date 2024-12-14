@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
+from src.saveChangeToDatabase import save_df_to_db, read_from_df
 import pandas as pd
 
 
@@ -66,16 +66,17 @@ class StudentManagement:
                 return
 
             students_df = read_from_df('students')
+            student_id = students_df['student_id'].max() + 1 if not students_df.empty else 1
             new_student = pd.DataFrame([{
                 "first_name": first_name,
                 "last_name": last_name,
                 "date_of_birth": dob,
                 "address": address,
                 "email": email,
-                "student_id": students_df['student_id'].max() + 1 if not students_df.empty else 1
+                "student_id": student_id
             }])
             students_df = pd.concat([students_df, new_student], ignore_index=True)
-            save_df_to_db('students', students_df)
+            save_df_to_db('students', students_df, student_id)
 
             messagebox.showinfo("Success", "Student added successfully!")
         except Exception as e:

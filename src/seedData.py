@@ -80,9 +80,7 @@ audit_log_data = {
     'change_id': [0],
     'table_name': ["test"],
     'record_id': ["0"],
-    'change_type': ["INSERT"],
-    'change_timestamp': [datetime.now()],
-    'changed_by': ["admin"]
+    'change_timestamp': [datetime.now()]
 }
 audit_log_df = pd.DataFrame(audit_log_data)
 
@@ -91,7 +89,6 @@ messages_data = {
     'receiver': ["test1"],
     'message_text': ["test1"],
     'timestamp': [datetime.now()],
-    'is_read': [False]
 }
 messages_df = pd.DataFrame(messages_data)
 
