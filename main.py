@@ -1,5 +1,5 @@
 from gui.login import Login
-from src.db_handling.saveChangeToDatabase import save_df_to_db
+from src.saveChangeToDatabase import save_df_to_db
 import atexit
 
 # Debug: Log when save_all_changes() is called

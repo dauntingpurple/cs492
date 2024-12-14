@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
+from src.saveChangeToDatabase import save_df_to_db, read_from_df
 import pandas as pd
 
 
@@ -51,7 +51,16 @@ class CourseManagement:
             }
             courses_df = pd.concat([courses_df, pd.DataFrame([new_course])], ignore_index=True)
 
-            save_df_to_db('courses', courses_df)
+            # Convert the new course record to a DataFrame
+            new_course_df = pd.DataFrame([new_course])
+
+            # Append the new course DataFrame to the existing DataFrame
+            courses_df = pd.concat([courses_df, new_course_df], ignore_index=True)
+
+            # Save the updated DataFrame to the database
+            save_df_to_db('courses', courses_df, new_index)
+
+
             messagebox.showinfo("Success", "Course added successfully!")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to add course: {e}")

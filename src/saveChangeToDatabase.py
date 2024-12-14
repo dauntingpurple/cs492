@@ -8,10 +8,11 @@ audit_log_df = pd.DataFrame(columns=[
     "change_id", "table_name", "record_id", "change_type", "change_timestamp", "changed_by", "old_value", "new_value"
 ])
 
+""" This is not used
 def refresh_df_from_db():
-    """
-    Open all DataFrames from an SQLite database.
-    """
+
+    #Open all DataFrames from an SQLite database.
+
     engine = create_engine('sqlite:///school_management_system.db')
     #table_names = ['students', 'courses', 'enrollments', 'assignments', 'grades']
     
@@ -22,6 +23,7 @@ def refresh_df_from_db():
     grades_df = pd.read_sql_table('grades', con=engine)
 
     return students_df, courses_df, enrollments_df, grades_df
+"""
 
 def read_from_df(table_name):
     """
@@ -31,35 +33,30 @@ def read_from_df(table_name):
     dataframe = pd.read_sql_table(table_name, con=engine)
     return dataframe
 
-def save_df_to_db(table_name, dataframe, new, who, index):
+# new is a Boolean
+def save_df_to_db(table_name, dataframe, index):
     """
     Save a single DataFrame to an SQLite database.
     """
     engine = create_engine('sqlite:///school_management_system.db')
     dataframe.to_sql(table_name, con=engine, if_exists='replace', index=False)
-    log_change(table_name, new, who, index)
+    log_change(table_name, index)
 
-def log_change(table_name, new, changed_by, index):
-    global next_change_id  # Use the global variable for change ID
-    global audit_log_df
-    
-    if (new):
-        change_type = 'INSERT'
-    else:
-        'UPDATE'
 
+# new is a Boolean
+def log_change(table_name, index = None):
     # Create a new entry in the audit log
     new_entry = {
         'change_id': (audit_log_df.index[-1]) + 1,
         'table_name': table_name,
         'record_id': index,
-        'change_type': change_type,
         'change_timestamp': datetime.now(),
-        'changed_by': changed_by
     }
     audit_log_df= pd.read_sql_table('audit_log', con=engine)
+
     # Append the new entry to the audit log DataFrame and push to database
-    audit_log_df = audit_log_df.append(new_entry, ignore_index=True)
+    audit_log_df = pd.concat([audit_log_df, new_entry], ignore_index=True)
+
     engine = create_engine('sqlite:///school_management_system.db')
     audit_log_df.to_sql("audit_log", con=engine, if_exists='replace', index=False)
 

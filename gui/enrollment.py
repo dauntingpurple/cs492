@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
-from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
+from tkinter import messagebox, ttk
+from src.saveChangeToDatabase import save_df_to_db, read_from_df
 import pandas as pd
 
 
@@ -48,8 +48,16 @@ class EnrollmentManagement:
                 "student_id": int(student_id),
                 "course_id": int(course_id)
             }
-            enrollments_df = pd.concat([enrollments_df, pd.DataFrame([new_enrollment])], ignore_index=True)
-            save_df_to_db('enrollments', enrollments_df)
+
+            # Convert the new enrollment to a DataFrame
+            new_enrollment_df = pd.DataFrame([new_enrollment])
+
+            # Append the new enrollment to the existing DataFrame
+            enrollments_df = pd.concat([enrollments_df, new_enrollment_df], ignore_index=True)
+
+            # Save the updated DataFrame to the database
+            save_df_to_db('enrollments', enrollments_df, new_enrollment_id)
+
 
             messagebox.showinfo("Success", "Student enrolled successfully!")
         except Exception as e:

@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, scrolledtext
 import pandas as pd
 from datetime import datetime
+from src.saveChangeToDatabase import save_df_to_db, read_from_df
 
 
 class CommunicationSystem:
@@ -17,9 +18,6 @@ class CommunicationSystem:
         self.current_user = current_user  # Store the current user's role or name
 
         # Initialize a DataFrame to store messages
-        self.messages_df = pd.DataFrame(columns=['sender', 'receiver', 'message_text', 'timestamp', 'is_read'])
-        self.unsent_messages = []  # Temporary storage for unsent messages
-
         # GUI Elements
         self.setup_gui()
 
@@ -57,28 +55,29 @@ class CommunicationSystem:
         receiver = self.receiver_entry.get()
         message_text = self.message_text_entry.get("1.0", tk.END).strip()
 
+        messages_df = read_from_df('messages')
+
+
         if not receiver or not message_text:
             messagebox.showwarning("Warning", "Receiver and message text are required!")
             return
 
         # Create a new message entry
-        new_message = {
+        new_message = pd.DataFrame({
             'sender': sender,
             'receiver': receiver,
             'message_text': message_text,
             'timestamp': datetime.now(),
             'is_read': False
-        }
-
-        # Convert new_message to a DataFrame
-        new_message_df = pd.DataFrame([new_message])
+        })
 
         # Append new_message_df to the main DataFrame
-        if self.messages_df.empty:
-            self.messages_df = new_message_df
+        if messages_df.empty:
+            messages_df = new_message
         else:
-            self.messages_df = pd.concat([self.messages_df, new_message_df], ignore_index=True)
-
+            messages_df = pd.concat([messages_df, new_message], ignore_index=True)
+            save_df_to_db('messages', messages_df)
+            
         # Clear the message text box
         self.message_text_entry.delete("1.0", tk.END)
         messagebox.showinfo("Success", "Message sent successfully!")
@@ -89,11 +88,12 @@ class CommunicationSystem:
         Loads and displays messages relevant to the current user.
         """
         self.message_list.delete(1.0, tk.END)  # Clear current messages
+        messages_df = read_from_df('messages')
 
         # Filter messages for the current user
-        user_messages = self.messages_df[
-            (self.messages_df['sender'] == self.current_user) |
-            (self.messages_df['receiver'] == self.current_user)
+        user_messages = messages_df[
+            (messages_df['sender'] == self.current_user) |
+            (messages_df['receiver'] == self.current_user)
         ]
 
         for _, msg in user_messages.iterrows():

@@ -75,9 +75,9 @@ user_data = {
 user_df = pd.DataFrame(user_data)
 
 # Initialize audit logs and messages
-audit_log_columns = ['change_id', 'table_name', 'record_id', 'change_type', 'change_timestamp', 'changed_by', 'old_value', 'new_value']
+audit_log_columns = ['change_id', 'table_name', 'record_id', 'change_timestamp']
 audit_log_df = pd.DataFrame(columns=audit_log_columns)
-messages_df_columns = ['sender', 'receiver', 'message_text', 'timestamp', 'is_read']
+messages_df_columns = ['sender', 'receiver', 'message_text', 'timestamp']
 messages_df = pd.DataFrame(columns=messages_df_columns)
 
 # Display the DataFrames
