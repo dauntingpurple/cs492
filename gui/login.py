@@ -2,7 +2,7 @@ import tkinter as tk
 import hashlib
 from tkinter import messagebox
 from gui.dashboard import Dashboard
-from src.db_handling.saveChangeToDatabase import read_from_df
+from src.saveChangeToDatabase import read_from_df
 
 # Sample users for authentication
 USERS = {

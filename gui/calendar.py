@@ -3,7 +3,7 @@ from tkinter import messagebox, ttk
 from tkcalendar import Calendar
 import pandas as pd
 from datetime import datetime
-from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
+from src.saveChangeToDatabase import save_df_to_db, read_from_df
 
 
 class ClassroomSchedule:

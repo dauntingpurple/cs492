@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
+from src.saveChangeToDatabase import save_df_to_db, read_from_df
 import pandas as pd
 
 
