@@ -62,25 +62,77 @@ class BookClassroom:
     def setup_gui(self):
         tk.Label(self.root, text="Classroom Name:").grid(row=0, column=0, padx=10, pady=5)
         self.classroom_name_combobox = ttk.Combobox(self.root, values=self.get_classroom_names())
-        self.classroom_name_combobox.grid(row=0, column=1, padx=10, pady=5)
+        self.classroom_name_combobox.grid(row=0, column=1, columnspan=3, padx=10, pady=5)
+        
+        # Time and day values to populate
+        today = datetime.today()
+        year_values = [today.year + x for x in range(11)]  # Current year + next 10 years
+        month_values = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']  # Two-digit month values
+        day_values = [x for x in range(1, 32)]  # Days 1-31
+        hour_values = [x for x in range(1, 13)]  # Hours 1-12
+        minute_values = [x for x in range(0, 60, 5)]  # Minutes 0, 5, 10, ..., 55
 
-        tk.Label(self.root, text="Start Time (YYYY-MM-DD HH:MM):").grid(row=1, column=0, padx=10, pady=5)
-        self.start_time_entry = tk.Entry(self.root)
-        self.start_time_entry.grid(row=1, column=1, padx=10, pady=5)
+        # Set default values
+        default_day = today.day
+        default_month = today.month
+        default_year = today.year
+        default_hour = today.hour % 12 or 12  # Convert 0 hour to 12
+        default_minute = (today.minute // 5) * 5  # Round down to nearest 5
+        default_am_pm = 'AM' if today.hour < 12 else 'PM'
 
-        tk.Label(self.root, text="End Time (YYYY-MM-DD HH:MM):").grid(row=2, column=0, padx=10, pady=5)
-        self.end_time_entry = tk.Entry(self.root)
-        self.end_time_entry.grid(row=2, column=1, padx=10, pady=5)
+        tk.Label(self.root, text="Start Date:").grid(row=1, column=0, padx=10, pady=5)
+        self.start_date_MM_entry = ttk.Combobox(self.root, values=month_values, width=3)
+        self.start_date_MM_entry.grid(row=1, column=1, padx=0, pady=5)
+        self.start_date_MM_entry.set(f"{default_month:02}")  # Set default month
+        self.start_date_DD_entry = ttk.Combobox(self.root, values=day_values, width=3)
+        self.start_date_DD_entry.grid(row=1, column=2, padx=0, pady=5)
+        self.start_date_DD_entry.set(f"{default_day:02}")  # Set default day
+        self.start_date_YYYY_entry = ttk.Combobox(self.root, values=year_values, width=5)
+        self.start_date_YYYY_entry.grid(row=1, column=3, padx=0, pady=5)
+        self.start_date_YYYY_entry.set(str(default_year))  # Set default year
 
-        tk.Label(self.root, text="Reserved By:").grid(row=3, column=0, padx=10, pady=5)
+        tk.Label(self.root, text="End Time:").grid(row=2, column=0, padx=10, pady=5)
+        self.end_date_MM_entry = ttk.Combobox(self.root, values=month_values, width=3)
+        self.end_date_MM_entry.grid(row=2, column=1, padx=0, pady=5)
+        self.end_date_MM_entry.set(f"{default_month:02}")  # Set default month
+        self.end_date_DD_entry = ttk.Combobox(self.root, values=day_values, width=3)
+        self.end_date_DD_entry.grid(row=2, column=2, padx=0, pady=5)
+        self.end_date_DD_entry.set(f"{default_day:02}")  # Set default day
+        self.end_date_YYYY_entry = ttk.Combobox(self.root, values=year_values, width=5)
+        self.end_date_YYYY_entry.grid(row=2, column=3, padx=0, pady=5)
+        self.end_date_YYYY_entry.set(str(default_year))  # Set default year
+
+        tk.Label(self.root, text="Start Time:").grid(row=3, column=0, padx=10, pady=5)
+        self.start_time_HH_entry = ttk.Combobox(self.root, values=hour_values, width=3)
+        self.start_time_HH_entry.grid(row=3, column=1, padx=0, pady=5)
+        self.start_time_HH_entry.set(str(default_hour))  # Set default hour
+        self.start_time_MM_entry = ttk.Combobox(self.root, values=minute_values, width=3)
+        self.start_time_MM_entry.grid(row=3, column=2, padx=0, pady=5)
+        self.start_time_MM_entry.set(str(default_minute))  # Set default minute
+        self.start_time_AM_entry = ttk.Combobox(self.root, values=['AM', 'PM'], width=5)
+        self.start_time_AM_entry.grid(row=3, column=3, padx=0, pady=5)
+        self.start_time_AM_entry.set(default_am_pm)  # Set default AM/PM
+
+        tk.Label(self.root, text="End Time:").grid(row=4, column=0, padx=10, pady=5)
+        self.end_time_HH_entry = ttk.Combobox(self.root, values=hour_values, width=3)
+        self.end_time_HH_entry.grid(row=4, column=1, padx=0, pady=5)
+        self.end_time_HH_entry.set(str(default_hour))  # Set default hour
+        self.end_time_MM_entry = ttk.Combobox(self.root, values=minute_values, width=3)
+        self.end_time_MM_entry.grid(row=4, column=2, padx=0, pady=5)
+        self.end_time_MM_entry.set(str(default_minute))  # Set default minute
+        self.end_time_PM_entry = ttk.Combobox(self.root, values=['AM', 'PM'], width=5)
+        self.end_time_PM_entry.grid(row=4, column=3, padx=0, pady=5)
+        self.end_time_PM_entry.set(default_am_pm)  # Set default AM/PM
+
+        tk.Label(self.root, text="Reserved By:").grid(row=5, column=0, padx=10, pady=5)
         self.reserved_by_combobox = ttk.Combobox(self.root, values=self.get_reserved_by_names())
-        self.reserved_by_combobox.grid(row=3, column=1, padx=10, pady=5)
+        self.reserved_by_combobox.grid(row=5, column=1, columnspan=3, padx=10, pady=5)
 
-        tk.Label(self.root, text="Purpose:").grid(row=4, column=0, padx=10, pady=5)
+        tk.Label(self.root, text="Purpose:").grid(row=6, column=0, padx=10, pady=5)
         self.purpose_entry = tk.Entry(self.root)
-        self.purpose_entry.grid(row=4, column=1, padx=10, pady=5)
+        self.purpose_entry.grid(row=6, column=1, columnspan=3, padx=10, pady=5)
 
-        tk.Button(self.root, text="Submit", command=self.book_classroom).grid(row=5, column=1, pady=10)
+        tk.Button(self.root, text="Submit", command=self.book_classroom).grid(row=7, column=1, pady=10)
 
     def get_classroom_names(self):
         """
@@ -113,8 +165,11 @@ class BookClassroom:
     def book_classroom(self):
         try:
             classroom_name = self.classroom_name_combobox.get()
-            start_time = datetime.strptime(self.start_time_entry.get(), "%Y-%m-%d %H:%M")
-            end_time = datetime.strptime(self.end_time_entry.get(), "%Y-%m-%d %H:%M")
+            start_date = f"{self.start_date_YYYY_entry.get()}-{self.start_date_MM_entry.get()}-{self.start_date_DD_entry.get()} {self.start_time_HH_entry.get()}:{self.start_time_MM_entry.get()} {self.start_time_AM_entry.get()}"
+            end_date = f"{self.end_date_YYYY_entry.get()}-{self.end_date_MM_entry.get()}-{self.end_date_DD_entry.get()} {self.end_time_HH_entry.get()}:{self.end_time_MM_entry.get()} {self.end_time_PM_entry.get()}"
+            start_time = datetime.strptime(start_date, "%Y-%m-%d %I:%M %p")
+            end_time = datetime.strptime(end_date, "%Y-%m-%d %I:%M %p")
+            
             reserved_by = self.reserved_by_combobox.get()
             purpose = self.purpose_entry.get()
 
@@ -150,7 +205,7 @@ class BookClassroom:
 
             schedules_df = pd.concat([schedules_df, new_booking], ignore_index=True)
 
-            save_df_to_db('classroom_schedules', schedules_df)
+            save_df_to_db('classroom_schedules', schedules_df,None)
 
             messagebox.showinfo("Success", "Classroom booked successfully!")
             self.refresh_callback()
