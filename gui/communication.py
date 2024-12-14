@@ -5,16 +5,15 @@ from datetime import datetime
 
 
 class CommunicationSystem:
-    def __init__(self, master, current_user):
+    def __init__(self, parent, current_user):
         """
         Initializes the Communication System.
 
         Args:
-            master (tk.Toplevel): The parent Tkinter window.
+            parent (tk.Widget): The parent Tkinter frame for embedding into a tab.
             current_user (str): The current user (role or username).
         """
-        self.master = master
-        self.master.title("Teacher-Administrator Communication")
+        self.parent = parent
         self.current_user = current_user  # Store the current user's role or name
 
         # Initialize a DataFrame to store messages
@@ -28,24 +27,24 @@ class CommunicationSystem:
         """
         Sets up the GUI for messaging.
         """
-        tk.Label(self.master, text=f"Logged in as: {self.current_user}", font=("Arial", 12, "bold")).pack(pady=5)
+        tk.Label(self.parent, text=f"Logged in as: {self.current_user}", font=("Arial", 12, "bold")).pack(pady=5)
 
         # Receiver
-        tk.Label(self.master, text="Receiver:").pack()
-        self.receiver_entry = tk.Entry(self.master)
+        tk.Label(self.parent, text="Receiver:").pack()
+        self.receiver_entry = tk.Entry(self.parent)
         self.receiver_entry.pack()
 
         # Message Text
-        tk.Label(self.master, text="Message:").pack()
-        self.message_text_entry = scrolledtext.ScrolledText(self.master, width=40, height=10)
+        tk.Label(self.parent, text="Message:").pack()
+        self.message_text_entry = scrolledtext.ScrolledText(self.parent, width=40, height=10)
         self.message_text_entry.pack()
 
         # Send Message Button
-        tk.Button(self.master, text="Send Message", command=self.send_message).pack(pady=5)
+        tk.Button(self.parent, text="Send Message", command=self.send_message).pack(pady=5)
 
         # Message List
-        tk.Label(self.master, text="Messages:").pack()
-        self.message_list = scrolledtext.ScrolledText(self.master, width=50, height=15)
+        tk.Label(self.parent, text="Messages:").pack()
+        self.message_list = scrolledtext.ScrolledText(self.parent, width=50, height=15)
         self.message_list.pack()
 
         self.load_messages()  # Load initial messages
@@ -103,7 +102,9 @@ class CommunicationSystem:
 
 
 if __name__ == "__main__":
+    # Example standalone usage; replace with dynamic integration in main application
     root = tk.Tk()
-    current_user = "Admin"  # Example user; replace with dynamic user role
-    communication_system = CommunicationSystem(root, current_user)
+    root.title("Messaging System")
+    root.geometry("500x600")
+    CommunicationSystem(root, current_user="Admin")
     root.mainloop()
