@@ -1,31 +1,36 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import ttk, messagebox
 from tkcalendar import Calendar
+from datetime import datetime, timedelta
 import pandas as pd
 from datetime import datetime
 from src.saveChangeToDatabase import save_df_to_db, read_from_df
 
 
 class ClassroomSchedule:
-    def __init__(self):
-        self.root = tk.Toplevel()
-        self.root.title("Classroom Schedule Management")
+    def __init__(self, parent):
+        """
+        Initialize the Classroom Schedule Management GUI within the parent frame.
+        """
+        self.parent = parent
         self.setup_gui()
 
     def setup_gui(self):
-        tk.Label(self.root, text="Classroom Scheduling Dashboard", font=("Helvetica", 16)).pack(pady=10)
+        tk.Label(self.parent, text="Classroom Scheduling Dashboard", font=("Helvetica", 16)).pack(pady=10)
 
-        self.schedule_list = tk.Listbox(self.root, height=10)
+        self.schedule_list = tk.Listbox(self.parent, height=10)
         self.schedule_list.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        tk.Button(self.root, text="Book Classroom", command=self.open_booking_window).pack(pady=5)
-        tk.Button(self.root, text="View Calendar", command=self.open_calendar_view).pack(pady=5)
-        tk.Button(self.root, text="Refresh", command=self.refresh_schedules).pack(pady=5)
-        tk.Button(self.root, text="Close", command=self.root.destroy).pack(pady=5)
+        tk.Button(self.parent, text="Book Classroom", command=self.open_booking_window).pack(pady=5)
+        tk.Button(self.parent, text="View Calendar", command=self.open_calendar_view).pack(pady=5)
+        tk.Button(self.parent, text="Refresh", command=self.refresh_schedules).pack(pady=5)
 
         self.refresh_schedules()
 
     def refresh_schedules(self):
+        """
+        Refresh the schedule list to display all classroom bookings.
+        """
         try:
             schedules_df = read_from_df('classroom_schedules')
 
@@ -37,23 +42,31 @@ class ClassroomSchedule:
             self.schedule_list.delete(0, tk.END)
 
             for _, schedule in schedules_df.iterrows():
-                reserved_by = f"{schedule['reserved_by']}"  # Adjusted for combobox changes
                 self.schedule_list.insert(
                     tk.END,
-                    f"{schedule['classroom_name']} | {schedule['start_time']} - {schedule['end_time']} | Reserved by: {reserved_by} | Purpose: {schedule['purpose']}"
+                    f"{schedule['classroom_name']} | {schedule['start_time']} - {schedule['end_time']} | Reserved by: {schedule['reserved_by']} | Purpose: {schedule['purpose']}"
                 )
         except Exception as e:
             messagebox.showerror("Error", f"Failed to refresh schedules: {e}")
 
     def open_booking_window(self):
-        BookClassroom(self.refresh_schedules)
+        """
+        Open the booking window for scheduling classrooms.
+        """
+        BookingWindow(self.refresh_schedules)
 
     def open_calendar_view(self):
+        """
+        Open a calendar view to visualize classroom schedules.
+        """
         CalendarView()
 
 
-class BookClassroom:
+class BookingWindow:
     def __init__(self, refresh_callback):
+        """
+        Initialize the booking window for classroom scheduling.
+        """
         self.refresh_callback = refresh_callback
         self.root = tk.Toplevel()
         self.root.title("Book Classroom")
@@ -135,9 +148,6 @@ class BookClassroom:
         tk.Button(self.root, text="Submit", command=self.book_classroom).grid(row=7, column=1, pady=10)
 
     def get_classroom_names(self):
-        """
-        Fetch classroom names from the database or a predefined list.
-        """
         try:
             schedules_df = read_from_df('classroom_schedules')
             return schedules_df['classroom_name'].unique().tolist()
@@ -145,10 +155,17 @@ class BookClassroom:
             messagebox.showerror("Error", f"Failed to fetch classroom names: {e}")
             return []
 
+    def get_date_options(self):
+        today = datetime.now()
+        return [(today + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(30)]
+
+    def get_hour_options(self):
+        return [f"{i:02d}" for i in range(24)]
+
+    def get_minute_options(self):
+        return [f"{i:02d}" for i in range(0, 60, 5)]
+
     def get_reserved_by_names(self):
-        """
-        Fetch reserved_by names from the database or a predefined list.
-        """
         try:
             students_df = read_from_df('students')
             teachers_df = read_from_df('teachers')
@@ -169,7 +186,7 @@ class BookClassroom:
             end_date = f"{self.end_date_YYYY_entry.get()}-{self.end_date_MM_entry.get()}-{self.end_date_DD_entry.get()} {self.end_time_HH_entry.get()}:{self.end_time_MM_entry.get()} {self.end_time_PM_entry.get()}"
             start_time = datetime.strptime(start_date, "%Y-%m-%d %I:%M %p")
             end_time = datetime.strptime(end_date, "%Y-%m-%d %I:%M %p")
-            
+
             reserved_by = self.reserved_by_combobox.get()
             purpose = self.purpose_entry.get()
 
@@ -177,18 +194,17 @@ class BookClassroom:
                 messagebox.showerror("Error", "All fields are required!")
                 return
 
-            if start_time >= end_time:
+            start_dt = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
+            end_dt = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S")
+
+            if start_dt >= end_dt:
                 messagebox.showerror("Error", "End time must be after start time.")
                 return
 
             schedules_df = read_from_df('classroom_schedules')
-
-            schedules_df['start_time'] = pd.to_datetime(schedules_df['start_time'], errors='coerce')
-            schedules_df['end_time'] = pd.to_datetime(schedules_df['end_time'], errors='coerce')
-
             overlapping = schedules_df[
                 (schedules_df['classroom_name'] == classroom_name) &
-                ((schedules_df['start_time'] < end_time) & (schedules_df['end_time'] > start_time))
+                ((schedules_df['start_time'] < end_dt) & (schedules_df['end_time'] > start_dt))
             ]
 
             if not overlapping.empty:
@@ -197,15 +213,13 @@ class BookClassroom:
 
             new_booking = pd.DataFrame([{
                 "classroom_name": classroom_name,
-                "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "end_time": end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "start_time": start_time,
+                "end_time": end_time,
                 "reserved_by": reserved_by,
                 "purpose": purpose
             }])
-
             schedules_df = pd.concat([schedules_df, new_booking], ignore_index=True)
-
-            save_df_to_db('classroom_schedules', schedules_df,None)
+            save_df_to_db('classroom_schedules', schedules_df,0)
 
             messagebox.showinfo("Success", "Classroom booked successfully!")
             self.refresh_callback()
@@ -236,7 +250,6 @@ class CalendarView:
     def load_events(self):
         try:
             schedules_df = read_from_df('classroom_schedules')
-
             schedules_df['start_time'] = pd.to_datetime(schedules_df['start_time'], errors='coerce')
             schedules_df = schedules_df.dropna(subset=['start_time'])
 
@@ -252,17 +265,14 @@ class CalendarView:
             selected_date_obj = datetime.strptime(selected_date, "%m/%d/%y").date()
 
             schedules_df = read_from_df('classroom_schedules')
-
             schedules_df['start_time'] = pd.to_datetime(schedules_df['start_time'], errors='coerce')
             schedules_df['start_date'] = schedules_df['start_time'].dt.date
-            schedules_df = schedules_df.dropna(subset=['start_time'])
 
             selected_events = schedules_df[schedules_df['start_date'] == selected_date_obj]
-
             self.events_list.delete(0, tk.END)
+
             for _, event in selected_events.iterrows():
-                reserved_by = f"{event['reserved_by']}"
-                event_info = f"{event['classroom_name']} | {event['start_time']} - {event['end_time']} | Reserved by: {reserved_by} | Purpose: {event['purpose']}"
+                event_info = f"{event['classroom_name']} | {event['start_time']} - {event['end_time']} | Purpose: {event['purpose']}"
                 self.events_list.insert(tk.END, event_info)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to show events: {e}")

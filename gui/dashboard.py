@@ -1,85 +1,126 @@
 import tkinter as tk
+from tkinter import ttk
 from gui.student import StudentManagement
 from gui.course import CourseManagement
 from gui.enrollment import EnrollmentManagement
 from gui.communication import CommunicationSystem
-from gui.teacher import GradeEntry
-from gui.calendar import ClassroomSchedule  # Import Classroom Schedule Management
+from gui.teacher import TeacherManagement
+from gui.calendar import ClassroomSchedule
 
 
 class Dashboard:
     def __init__(self, role):
         """
-        Initializes the main dashboard based on the user's role.
+        Initialize the main dashboard GUI with vertical tabs on the left.
         """
         self.root = tk.Tk()
         self.root.title(f"Dashboard - {role}")
+        self.root.geometry("1200x700")
         self.role = role
 
-    def open_student_management(self):
-        """
-        Opens the Student Management GUI.
-        """
-        StudentManagement()
+        # Define colors for each tab
+        self.tab_colors = {
+            "Student Management": "#ffebcd",
+            "Course Management": "#add8e6",
+            "Enrollment Management": "#ffe4e1",
+            "Classroom Schedule": "#98fb98",
+            "Teacher Management": "#f0e68c",
+            "Messaging System": "#dda0dd",
+        }
 
-    def open_course_management(self):
-        """
-        Opens the Course Management GUI.
-        """
-        CourseManagement()
+        # Create main frame for layout
+        main_frame = tk.Frame(self.root)
+        main_frame.pack(fill=tk.BOTH, expand=True)
 
-    def open_enrollment_management(self):
-        """
-        Opens the Enrollment Management GUI.
-        """
-        EnrollmentManagement()
+        # Create the tab frame
+        self.tab_frame = tk.Frame(main_frame)
+        self.tab_frame.pack(side=tk.LEFT, fill=tk.Y)
 
-    def open_communication_system(self):
-        """
-        Opens the Messaging System GUI.
-        """
-        communication_window = tk.Toplevel(self.root)
-        CommunicationSystem(communication_window, current_user=self.role)
+        # Create the content frame
+        self.content_frame = tk.Frame(main_frame)
+        self.content_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
-    def enter_grades(self):
-        """
-        Opens the Grade Entry GUI for teachers.
-        """
-        GradeEntry()
+        # Initialize styles
+        self.style = ttk.Style()
+        self.style.configure("TButton", font=("Helvetica", 12, "bold"), padding=5)
 
-    def open_classroom_schedule(self):
+        # Add tabs
+        self.create_tabs()
+
+        # Add Exit button
+        self.add_exit_button()
+
+    def create_tabs(self):
         """
-        Opens the Classroom Schedule Management GUI.
+        Add all feature tabs to the tab frame.
         """
-        ClassroomSchedule()
+        self.frames = {}
+
+        # Create buttons for tabs
+        for title in self.tab_colors.keys():
+            button = tk.Button(self.tab_frame, text=title, command=lambda t=title: self.show_tab(t))
+            button.pack(fill=tk.X, padx=5, pady=5)
+            self.frames[title] = self.add_tab(title)
+
+    def add_tab(self, title):
+        """
+        Create the content frame for the selected tab.
+        """
+        frame = tk.Frame(self.content_frame, bg=self.tab_colors[title])
+        # Initialize the corresponding component (assuming it returns a frame)
+        if title == "Student Management":
+            StudentManagement(frame)
+        elif title == "Course Management":
+            CourseManagement(frame)
+        elif title == "Enrollment Management":
+            EnrollmentManagement(frame)
+        elif title == "Classroom Schedule":
+            ClassroomSchedule(frame)
+        elif title == "Teacher Management":
+            TeacherManagement(frame)
+        elif title == "Messaging System" and self.role in ["admin", "teacher", "student"]:
+            CommunicationSystem(frame, current_user=self.role)
+        
+        return frame
+
+    def show_tab(self, title):
+        """
+        Show the selected tab and hide others.
+        """
+        for frame in self.frames.values():
+            frame.pack_forget()  # Hide all frames
+        self.frames[title].pack(fill=tk.BOTH, expand=True)  # Show selected frame
+
+    def add_exit_button(self):
+        """
+        Add an Exit button at the bottom right of the dashboard.
+        """
+        exit_button_frame = tk.Frame(self.root)
+        exit_button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
+
+        exit_button = tk.Button(
+            exit_button_frame,
+            text="Exit",
+            font=("Helvetica", 12, "bold"),
+            bg="#ff4d4d",
+            fg="white",
+            command=self.exit_application,
+        )
+        exit_button.pack(side=tk.RIGHT, padx=10)
+
+    def exit_application(self):
+        """
+        Close the application when the Exit button is clicked.
+        """
+        self.root.destroy()
 
     def run(self):
         """
-        Runs the main dashboard GUI.
+        Start the Tkinter mainloop.
         """
-        tk.Label(self.root, text=f"Welcome to the {self.role} Dashboard!", font=("Arial", 16)).pack(pady=20)
-
-        if self.role == "admin":
-            tk.Button(self.root, text="Manage Students", command=self.open_student_management).pack(pady=5)
-            tk.Button(self.root, text="Manage Courses", command=self.open_course_management).pack(pady=5)
-            tk.Button(self.root, text="Manage Enrollments", command=self.open_enrollment_management).pack(pady=5)
-            tk.Button(self.root, text="Messaging System", command=self.open_communication_system).pack(pady=5)
-            tk.Button(self.root, text="Classroom Schedules", command=self.open_classroom_schedule).pack(pady=5)
-        elif self.role == "teacher":
-            tk.Button(self.root, text="Enter Grades", command=self.enter_grades).pack(pady=5)
-            tk.Button(self.root, text="Messaging System", command=self.open_communication_system).pack(pady=5)
-            tk.Button(self.root, text="Classroom Schedules", command=self.open_classroom_schedule).pack(pady=5)
-        elif self.role == "registrar":
-            tk.Button(self.root, text="Manage Enrollments", command=self.open_enrollment_management).pack(pady=5)
-            tk.Button(self.root, text="Classroom Schedules", command=self.open_classroom_schedule).pack(pady=5)
-        elif self.role == "student":
-            tk.Button(self.root, text="Messaging System", command=self.open_communication_system).pack(pady=5)
-
-        tk.Button(self.root, text="Logout", command=self.root.destroy).pack(pady=20)
-
+        self.show_tab(list(self.tab_colors.keys())[0])  # Show the first tab by default
         self.root.mainloop()
 
 
 if __name__ == "__main__":
-    dashboard = Dashboard(role="Admin")  # Example: Start as Admin
-    dashboard.run()
+    Dashboard(role="admin").run()
