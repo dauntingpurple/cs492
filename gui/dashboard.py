@@ -30,35 +30,89 @@ class Dashboard:
 
         # Create Notebook widget and style it
         self.style = ttk.Style(self.root)
-        self.style.configure("TNotebook.Tab", font=("Helvetica", 12, "bold"), padding=[10, 5])
-        self.style.configure("TNotebook", tabmargins=[5, 5, 5, 0])
+        self.style.configure(
+            "TNotebook.Tab",
+            font=("Helvetica", 12, "bold"),  # Adjust font and boldness
+            padding=[10, 5],  # Add spacing around tabs
+        )
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill=tk.BOTH, expand=True)
 
-        # Create all tabs
+        # Add tabs
         self.create_tabs()
+
+        # Add Exit button
+        self.add_exit_button()
+
+        # Fix tab colors
+        self.fix_tab_colors()
 
     def create_tabs(self):
         """
         Add all feature tabs to the Notebook.
         """
-        self.add_tab("Student Management", StudentManagement, self.tab_colors["Student Management"])
-        self.add_tab("Course Management", CourseManagement, self.tab_colors["Course Management"])
-        self.add_tab("Enrollment Management", EnrollmentManagement, self.tab_colors["Enrollment Management"])
-        self.add_tab("Classroom Schedule", ClassroomSchedule, self.tab_colors["Classroom Schedule"])
-        self.add_tab("Teacher Management", TeacherManagement, self.tab_colors["Teacher Management"])
-        if self.role in ["admin", "teacher", "student"]:
-            self.add_tab("Messaging System", lambda parent: CommunicationSystem(parent, current_user=self.role),
-                         self.tab_colors["Messaging System"])
+        self.frames = {}  # Store frames to access them later for styling
 
-    def add_tab(self, title, component_class, color):
+        # Add Student Management Tab
+        self.frames["Student Management"] = self.add_tab("Student Management", StudentManagement)
+
+        # Add Course Management Tab
+        self.frames["Course Management"] = self.add_tab("Course Management", CourseManagement)
+
+        # Add Enrollment Management Tab
+        self.frames["Enrollment Management"] = self.add_tab("Enrollment Management", EnrollmentManagement)
+
+        # Add Classroom Schedule Tab
+        self.frames["Classroom Schedule"] = self.add_tab("Classroom Schedule", ClassroomSchedule)
+
+        # Add Teacher Management Tab
+        self.frames["Teacher Management"] = self.add_tab("Teacher Management", TeacherManagement)
+
+        # Add Messaging System Tab (only for admin, teacher, or student roles)
+        if self.role in ["admin", "teacher", "student"]:
+            self.frames["Messaging System"] = self.add_tab(
+                "Messaging System", lambda parent: CommunicationSystem(parent, current_user=self.role)
+            )
+
+    def add_tab(self, title, component_class):
         """
         Add a tab with a specific title and attach the corresponding component.
         """
         # Create the frame for the tab content
-        frame = tk.Frame(self.notebook, bg=color)  # Use tk.Frame for easy color assignment
+        frame = tk.Frame(self.notebook, bg=self.tab_colors[title])
         self.notebook.add(frame, text=title)  # Add the frame to the Notebook
         component_class(frame)  # Initialize the content for the frame
+        return frame
+
+    def add_exit_button(self):
+        """
+        Add an always-visible Exit button at the bottom right of the dashboard.
+        """
+        exit_button_frame = tk.Frame(self.root)
+        exit_button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
+
+        exit_button = tk.Button(
+            exit_button_frame,
+            text="Exit",
+            font=("Helvetica", 12, "bold"),
+            bg="#ff4d4d",
+            fg="white",
+            command=self.exit_application,
+        )
+        exit_button.pack(side=tk.RIGHT, padx=10)
+
+    def fix_tab_colors(self):
+        """
+        Update tab styles to match their corresponding background colors.
+        """
+        for idx, tab_name in enumerate(self.frames):
+            self.notebook.tab(idx, background=self.tab_colors[tab_name])  # Update the tab background
+
+    def exit_application(self):
+        """
+        Close the application when the Exit button is clicked.
+        """
+        self.root.destroy()
 
     def run(self):
         """
