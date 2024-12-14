@@ -37,7 +37,7 @@ class TeacherManagement:
             }
 
             teachers_df = teachers_df.append(new_teacher, ignore_index=True)
-            save_df_to_db('teachers', teachers_df)
+            save_df_to_db('teachers', teachers_df, new_index)
 
             messagebox.showinfo("Success", "Teacher added successfully!")
 

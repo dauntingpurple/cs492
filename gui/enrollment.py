@@ -66,7 +66,7 @@ class EnrollmentManagement:
             enrollments_df = pd.concat([enrollments_df, new_enrollment_df], ignore_index=True)
 
             # Save the updated DataFrame to the database
-            save_df_to_db('enrollments', enrollments_df)
+            save_df_to_db('enrollments', enrollments_df, new_enrollment_id)
 
             messagebox.showinfo("Success", "Student enrolled successfully!")
 

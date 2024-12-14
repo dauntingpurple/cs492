@@ -150,13 +150,7 @@ class BookClassroom:
 
             schedules_df = pd.concat([schedules_df, new_booking], ignore_index=True)
 
-            save_df_to_db(
-                table_name='classroom_schedules',
-                dataframe=schedules_df,
-                new=new_booking.to_dict(orient='records'),
-                who="User",
-                index=None
-            )
+            save_df_to_db('classroom_schedules', schedules_df)
 
             messagebox.showinfo("Success", "Classroom booked successfully!")
             self.refresh_callback()
