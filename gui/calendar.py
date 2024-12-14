@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import ttk, messagebox
 from tkcalendar import Calendar
+from datetime import datetime, timedelta
 import pandas as pd
-from datetime import datetime
 from src.db_handling.saveChangeToDatabase import save_df_to_db, read_from_df
 
 
@@ -64,28 +64,33 @@ class BookClassroom:
         self.classroom_name_combobox = ttk.Combobox(self.root, values=self.get_classroom_names())
         self.classroom_name_combobox.grid(row=0, column=1, padx=10, pady=5)
 
-        tk.Label(self.root, text="Start Time (YYYY-MM-DD HH:MM):").grid(row=1, column=0, padx=10, pady=5)
-        self.start_time_entry = tk.Entry(self.root)
-        self.start_time_entry.grid(row=1, column=1, padx=10, pady=5)
+        tk.Label(self.root, text="Date:").grid(row=1, column=0, padx=10, pady=5)
+        self.date_combobox = ttk.Combobox(self.root, values=self.get_date_options())
+        self.date_combobox.grid(row=1, column=1, padx=10, pady=5)
 
-        tk.Label(self.root, text="End Time (YYYY-MM-DD HH:MM):").grid(row=2, column=0, padx=10, pady=5)
-        self.end_time_entry = tk.Entry(self.root)
-        self.end_time_entry.grid(row=2, column=1, padx=10, pady=5)
+        tk.Label(self.root, text="Start Time:").grid(row=2, column=0, padx=10, pady=5)
+        self.start_hour_combobox = ttk.Combobox(self.root, values=self.get_hour_options(), width=5)
+        self.start_hour_combobox.grid(row=2, column=1, padx=5, sticky="w")
+        self.start_minute_combobox = ttk.Combobox(self.root, values=self.get_minute_options(), width=5)
+        self.start_minute_combobox.grid(row=2, column=1, padx=5, sticky="e")
 
-        tk.Label(self.root, text="Reserved By:").grid(row=3, column=0, padx=10, pady=5)
+        tk.Label(self.root, text="End Time:").grid(row=3, column=0, padx=10, pady=5)
+        self.end_hour_combobox = ttk.Combobox(self.root, values=self.get_hour_options(), width=5)
+        self.end_hour_combobox.grid(row=3, column=1, padx=5, sticky="w")
+        self.end_minute_combobox = ttk.Combobox(self.root, values=self.get_minute_options(), width=5)
+        self.end_minute_combobox.grid(row=3, column=1, padx=5, sticky="e")
+
+        tk.Label(self.root, text="Reserved By:").grid(row=4, column=0, padx=10, pady=5)
         self.reserved_by_combobox = ttk.Combobox(self.root, values=self.get_reserved_by_names())
-        self.reserved_by_combobox.grid(row=3, column=1, padx=10, pady=5)
+        self.reserved_by_combobox.grid(row=4, column=1, padx=10, pady=5)
 
-        tk.Label(self.root, text="Purpose:").grid(row=4, column=0, padx=10, pady=5)
+        tk.Label(self.root, text="Purpose:").grid(row=5, column=0, padx=10, pady=5)
         self.purpose_entry = tk.Entry(self.root)
-        self.purpose_entry.grid(row=4, column=1, padx=10, pady=5)
+        self.purpose_entry.grid(row=5, column=1, padx=10, pady=5)
 
-        tk.Button(self.root, text="Submit", command=self.book_classroom).grid(row=5, column=1, pady=10)
+        tk.Button(self.root, text="Submit", command=self.book_classroom).grid(row=6, column=1, pady=10)
 
     def get_classroom_names(self):
-        """
-        Fetch classroom names from the database or a predefined list.
-        """
         try:
             schedules_df = read_from_df('classroom_schedules')
             return schedules_df['classroom_name'].unique().tolist()
@@ -93,10 +98,17 @@ class BookClassroom:
             messagebox.showerror("Error", f"Failed to fetch classroom names: {e}")
             return []
 
+    def get_date_options(self):
+        today = datetime.now()
+        return [(today + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(30)]
+
+    def get_hour_options(self):
+        return [f"{i:02}" for i in range(24)]
+
+    def get_minute_options(self):
+        return [f"{i:02}" for i in range(0, 60, 5)]
+
     def get_reserved_by_names(self):
-        """
-        Fetch reserved_by names from the database or a predefined list.
-        """
         try:
             students_df = read_from_df('students')
             teachers_df = read_from_df('teachers')
@@ -113,16 +125,20 @@ class BookClassroom:
     def book_classroom(self):
         try:
             classroom_name = self.classroom_name_combobox.get()
-            start_time = datetime.strptime(self.start_time_entry.get(), "%Y-%m-%d %H:%M")
-            end_time = datetime.strptime(self.end_time_entry.get(), "%Y-%m-%d %H:%M")
+            date = self.date_combobox.get()
+            start_time = f"{date} {self.start_hour_combobox.get()}:{self.start_minute_combobox.get()}"
+            end_time = f"{date} {self.end_hour_combobox.get()}:{self.end_minute_combobox.get()}"
             reserved_by = self.reserved_by_combobox.get()
             purpose = self.purpose_entry.get()
+
+            start_datetime = datetime.strptime(start_time, "%Y-%m-%d %H:%M")
+            end_datetime = datetime.strptime(end_time, "%Y-%m-%d %H:%M")
 
             if not classroom_name or not reserved_by or not purpose:
                 messagebox.showerror("Error", "All fields are required!")
                 return
 
-            if start_time >= end_time:
+            if start_datetime >= end_datetime:
                 messagebox.showerror("Error", "End time must be after start time.")
                 return
 
@@ -133,7 +149,7 @@ class BookClassroom:
 
             overlapping = schedules_df[
                 (schedules_df['classroom_name'] == classroom_name) &
-                ((schedules_df['start_time'] < end_time) & (schedules_df['end_time'] > start_time))
+                ((schedules_df['start_time'] < end_datetime) & (schedules_df['end_time'] > start_datetime))
             ]
 
             if not overlapping.empty:
@@ -142,21 +158,15 @@ class BookClassroom:
 
             new_booking = pd.DataFrame([{
                 "classroom_name": classroom_name,
-                "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S"),
-                "end_time": end_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "start_time": start_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+                "end_time": end_datetime.strftime("%Y-%m-%d %H:%M:%S"),
                 "reserved_by": reserved_by,
                 "purpose": purpose
             }])
 
             schedules_df = pd.concat([schedules_df, new_booking], ignore_index=True)
 
-            save_df_to_db(
-                table_name='classroom_schedules',
-                dataframe=schedules_df,
-                new=new_booking.to_dict(orient='records'),
-                who="User",
-                index=None
-            )
+            save_df_to_db('classroom_schedules', schedules_df)
 
             messagebox.showinfo("Success", "Classroom booked successfully!")
             self.refresh_callback()
@@ -217,3 +227,8 @@ class CalendarView:
                 self.events_list.insert(tk.END, event_info)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to show events: {e}")
+
+
+if __name__ == "__main__":
+    app = ClassroomSchedule()
+    app.root.mainloop()
