@@ -213,8 +213,8 @@ class BookingWindow:
 
             new_booking = pd.DataFrame([{
                 "classroom_name": classroom_name,
-                "start_time": start_time,
-                "end_time": end_time,
+                "start_time": start_date,
+                "end_time": end_date,
                 "reserved_by": reserved_by,
                 "purpose": purpose
             }])
